@@ -200,14 +200,17 @@ def addScene(
 	framerate:int=60,
 	windowName:str="Made with Nengin!",
 	windowSize:tuple[int]|int=704, #anything pg.Vector2() accepts will do
-	windowPos:tuple[int]=pg.WINDOWPOS_UNDEFINED, #don't use an int for this one
+	windowPos:tuple[int]=pg.WINDOWPOS_CENTERED, #don't use a single int for this one
 	):
 	#It's better for everyone to check this here
 	name = str(name)
 	framerate = int(framerate)
 	windowName = str(windowName)
 	windowSize = Vector(windowSize)
-	if windowPos <= 32000: windowPos = Vector(windowPos)
+	if windowPos not in (pg.WINDOWPOS_UNDEFINED, pg.WINDOWPOS_CENTERED):
+		if isinstance(windowPos, int) and windowPos > 32000:
+			raise ValueError("Use a smaller position or declare it as a tuple")
+		else: windowPos = Vector(windowPos)
 
 	def _ret(cls:Scene):
 		nonlocal name, framerate, windowName, windowSize
