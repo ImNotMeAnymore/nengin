@@ -33,9 +33,9 @@ class _ContextClass(dict):
 		raise GenericNenginError(f"Scene {k} not found, registered scenes are:\n\t· {"\n\t· ".join(super().keys())}") 
 _CONTEXTS = _ContextClass()
 #screen = NotImplemented
-class screen:
-	def __getattribute__(self, o:str):
-		raise GenericNenginError("screen not yet initialized, don't use 'from nengin import screen'")
+#class screen:
+#	def __getattribute__(self, o:str):
+#		raise GenericNenginError("screen not yet initialized, don't use 'from nengin import screen'")
 # you need to use nengin.screen every time, using from nengin import screen will
 # just leave screen as NotImplemented and it will not get updated
 
@@ -226,6 +226,8 @@ def addScene(
 
 
 
+window = _wndw(title="Loading...", size=(1,1))
+screen = _rndr(window)
 
 
 CLOCK = pg.time.Clock()
@@ -274,11 +276,6 @@ class Game:
 
 		self.scene = h = _CONTEXTS[starter]
 		self.cur = h.name
-
-		window = _wndw(title=h.windowName, size=h.windowSize, position=h.windowPos)
-		screen = _rndr(window)
-		#s__builtins__["window"] = window
-		#s__builtins__["screen"] = screen
 
 		screen.clear()
 		h.__globalOnStart__(-1)
