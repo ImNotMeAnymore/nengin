@@ -200,7 +200,7 @@ def addScene(
 	framerate:int=60,
 	windowName:str="Made with Nengin!",
 	windowSize:tuple[int]|int=704, #anything pg.Vector2() accepts will do
-	windowPos:tuple[int]=pg.WINDOWPOS_CENTERED, #don't use a single int for this one
+	windowPos:tuple[int]=pg.WINDOWPOS_UNDEFINED, #don't use a single int for this one
 	):
 	#It's better for everyone to check this here
 	name = str(name)
@@ -227,6 +227,7 @@ def addScene(
 
 
 window = _wndw(title="Loading...", size=(1,1))
+window.hide()
 screen = _rndr(window)
 
 
@@ -277,7 +278,10 @@ class Game:
 		self.scene = h = _CONTEXTS[starter]
 		self.cur = h.name
 
+		window.show()
 		screen.clear()
+
+		if (h.windowPos == pg.WINDOWPOS_UNDEFINED): h.windowPos = pg.WINDOWPOS_CENTERED
 		h.__globalOnStart__(-1)
 		screen.present()
 
