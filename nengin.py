@@ -139,8 +139,11 @@ class Scene:
 		self.metadata.clear()
 	def onReset(self) -> None: pass
 
-	def __globalOnEnd__(self, next:int) -> None: pass
-	def onEnd(self, next:int) -> None: pass
+	def __globalOnEnd__(self, next:int) -> None:
+		self.onEnd(next)
+	def onEnd(self, next:int) -> None:
+		pass
+
 
 	def __globalOnStart__(self, prev:int, meta:dict={}) -> None:
 		self.__globalReset__()
@@ -293,7 +296,6 @@ class Game:
 		new:Scene = _CONTEXTS[to]
 		self.cur = to
 		self.scene.__globalOnEnd__(new.id)
-		self.scene.onEnd(new.id)
 		new.__globalOnStart__(self.scene.id, meta=metadata)
 
 		self.scene = new
