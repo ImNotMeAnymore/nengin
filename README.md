@@ -13,11 +13,11 @@ import nengin
 
 
 @nengin.addScene(
-	name = "YourGameScene",						# A string, REQUIRED, the name of the scene
-	framerate:int=60,						# An int, the target fps, defaults to 60
-	windowName="Made with Nengin!",					# A string, the name of the window
-	windowSize=704, 						# Anything pygame.Vector2() accepts will do
-	windowPos=pg.WINDOWPOS_UNDEFINED,				# Same as above but try not to use a single int for this one
+	name = "YourGameScene",			# A string, REQUIRED, the name of the scene
+	framerate:int=60,			# An int, the target fps, defaults to 60
+	windowName="Made with Nengin!",		# A string, the name of the window
+	windowSize=704, 			# Anything pygame.Vector2() accepts will do
+	windowPos=pg.WINDOWPOS_UNDEFINED,	# Same as above but try not to use a single int for this one
 )
 class GameScene(nengin.Scene):
 	def onDraw(self) -> None:
