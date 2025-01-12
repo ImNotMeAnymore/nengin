@@ -23,47 +23,14 @@ import pygame as pg
 from pygame import Vector2 as __vector, Window as _wndw
 from pygame._sdl2.video import Renderer as _rndr
 
-from math import sin
-
-
 class _ContextClass(dict):
 	def __getitem__(self, k):
 		try: return super().__getitem__(k)
 		except KeyError: pass
 		raise GenericNenginError(f"Scene {k} not found, registered scenes are:\n\t· {"\n\t· ".join(super().keys())}") 
 _CONTEXTS = _ContextClass()
-#screen = NotImplemented
-#class screen:
-#	def __getattribute__(self, o:str):
-#		raise GenericNenginError("screen not yet initialized, don't use 'from nengin import screen'")
-# you need to use nengin.screen every time, using from nengin import screen will
-# just leave screen as NotImplemented and it will not get updated
-
-# I know this is stupid but I can't think of a better way of doing it, a wrapper
-# would be too expensive for something you call many times every tick, so it has
-# to be called with nengin.screen, other than that you can also set screen after
-# Game is initialized by doing it inside a scene, like this:
-"""
-@addScene(name="_start")
-class StarterScene(Scene):
-	def firstStart(self):
-		global screen
-		from nengin import screen
-		self.changeScene("yourScene")
-"""
-# and then start with nengin.Game("_start") instead of "yourScene", I don't know
-# if I reccomend it tho maybe only if you also need to initialize other stuff at
-# the same time, or just set it from your starting scene now that I think of it.
-
-
-#TODO make a global screen with an user-defined handler
-
-
-
-
 
 class DoneFlag(Exception): pass
-
 
 class Vector(__vector):
 	@property
@@ -82,21 +49,18 @@ class Scene:
 	@classmethod
 	def idOf(cls, name:str): return _CONTEXTS[name].id
 
-	def __init_subclass__(self, *, debug:bool=False, optimize:bool=False):
+	def __init_subclass__(self, *, debug:bool=False):
 		self.__debug:bool = debug
 		self.__byID__[self.__curID__]:Scene = self
 		self.id:int = self.__curID__
 		Scene.__curID__ += 1
-
-		if optimize:
-			"TODO optimize calls according to type(self).THING == Scene.THING"
 
 	def changeScene(self, to:str, metadata:dict={}) -> None:
 		assert self.__game__
 		assert to != self.name
 		return self.__game__.changeSceneTo(to, metadata)
 	def close(self) -> None:
-		"### It's `Scene.close()`"
+		"Could be useful to call window.hide() just before"
 		raise DoneFlag(f"{self} Closed the Game")
 	quit = exit = end = done = close #I'm tired of forgetting it's name
 
@@ -139,8 +103,7 @@ class Scene:
 		self.metadata.clear()
 	def onReset(self) -> None: pass
 
-	def __globalOnEnd__(self, next:int) -> None:
-		self.onEnd(next)
+	def __globalOnEnd__(self, next:int) -> None: self.onEnd(next)
 	def onEnd(self, next:int) -> None:
 		pass
 
@@ -204,6 +167,7 @@ def addScene(
 	windowName:str="Made with Nengin!",
 	windowSize:tuple[int]|int=704, #anything pg.Vector2() accepts will do
 	windowPos:tuple[int]=pg.WINDOWPOS_UNDEFINED, #don't use a single int for this one
+	windowIcon:pg.Surface=None, #
 	):
 	#It's better for everyone to check this here
 	name = str(name)
@@ -228,9 +192,8 @@ def addScene(
 	return _ret
 
 
-
-window = _wndw(title="Loading...", size=(1,1))
-window.hide()
+window = _wndw(title="Loading...", size=(1,1), hidden=True)
+#window.hide()
 screen = _rndr(window)
 
 
