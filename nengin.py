@@ -225,6 +225,7 @@ class Game:
 				self.currentTick += 1
 				self.scene.__globalTick__()
 				self.scene.__globalDraw__()
+		#TODO error checking should lead to crash scene, like Löve2d does
 		except DoneFlag as e:
 			return print(e, "!")
 		except Exception as e:
@@ -232,29 +233,24 @@ class Game:
 			print(e,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 		finally: pg.quit()
 
+
+
 	def __init__(self, starter:str, _debug:bool=False):
 		self._debug = _debug
-
 		global screen,window
 		for v in _CONTEXTS.values(): v.__game__ = self
 		self.scene:Scene
 		self.cur:str
-
-
 		self.scene = h = _CONTEXTS[starter]
 		self.cur = h.name
-
 		window.show()
 		screen.clear()
-
-		if (h.windowPos == pg.WINDOWPOS_UNDEFINED): h.windowPos = pg.WINDOWPOS_CENTERED
-		h.__globalOnStart__(-1)
+		h.__globalOnStart__(-1)	
+		if (h.windowPos == pg.WINDOWPOS_UNDEFINED): window.position = pg.WINDOWPOS_CENTERED
 		screen.present()
-
 		return self.run()
 		#workaround to make an empty non-ticking scene
 
-		#TODO error checking should lead to crash scene, like Löve2d does
 	def changeSceneTo(self, to:str, metadata:dict={}):
 		new:Scene = _CONTEXTS[to]
 		self.cur = to
