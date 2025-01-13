@@ -174,6 +174,9 @@ def addScene(
 	framerate = int(framerate)
 	windowName = str(windowName)
 	windowSize = Vector(windowSize)
+	if windowIcon:
+		assert isinstance(windowIcon, pg.Surface)
+
 	if windowPos not in (pg.WINDOWPOS_UNDEFINED, pg.WINDOWPOS_CENTERED):
 		if isinstance(windowPos, int) and windowPos > 32000:
 			raise ValueError("Use a smaller position or declare it as a tuple")
@@ -184,7 +187,7 @@ def addScene(
 		x,y = Vector(windowSize).xyi
 		print(f"Registering: '{name}' [{x} x {y}] (ID:{Scene.__curID__-1})")
 		f = _CONTEXTS[name] = cls(
-			name, framerate,windowName, windowSize, windowPos
+			name, framerate,windowName, windowSize, windowPos, windowIcon
 			)
 		f.onRegister()
 		return f
