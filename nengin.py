@@ -30,7 +30,6 @@ class _ContextClass(dict):
 		raise GenericNenginError(f"Scene {k} not found, registered scenes are:\n\t· {"\n\t· ".join(super().keys())}") 
 _CONTEXTS = _ContextClass()
 
-class DoneFlag(Exception): pass
 
 class Vector(__vector):
 	@property
@@ -40,6 +39,8 @@ class Vector(__vector):
 	@property
 	def xyi(self): return int(self.x),int(self.y)
 
+
+class DoneFlag(Exception): pass
 class Scene:
 	__byID__:dict = {}
 	__curID__:int = 0
@@ -48,7 +49,7 @@ class Scene:
 	def nameOf(cls, id:int): return cls.__byID__[id].name
 	@classmethod
 	def idOf(cls, name:str): return _CONTEXTS[name].id
-
+	
 	def __init_subclass__(self, *, debug:bool=False):
 		self.__debug:bool = debug
 		self.__byID__[self.__curID__]:Scene = self
@@ -64,8 +65,6 @@ class Scene:
 		raise DoneFlag(f"{self} Closed the Game")
 	quit = exit = end = done = close #I'm tired of forgetting it's name
 
-
-
 	def __init__(	self, name:str,
 					framerate:int,
 					windowName:str,
@@ -73,6 +72,7 @@ class Scene:
 					windowPos:Vector,
 					windowIcon:pg.Surface=None,
 				) -> None:
+		#please redeclare onRegister instead
 		self.name:str = name
 		self.framerate:int = framerate
 		self.windowName:str = windowName
@@ -83,12 +83,12 @@ class Scene:
 		self.id:int
 		self.__started__:bool = False
 		self.framecounter:int = 0
-	def onRegister(self) -> None: pass
+	def onRegister(self) -> None: pass #Use this instead of __init__
 
 	def __globalTick__(self) -> None:
 		self.onTick()
 		self.framecounter += 1
-	def onTick(self) -> None: pass #replaces run()
+	def onTick(self) -> None: pass
 
 	def __globalDraw__(self) -> None:
 		self.onDraw()
@@ -107,7 +107,6 @@ class Scene:
 	def onEnd(self, next:int) -> None:
 		pass
 
-
 	def __globalOnStart__(self, prev:int, meta:dict={}) -> None:
 		self.__globalReset__()
 		self.onPreStart(prev)
@@ -122,9 +121,11 @@ class Scene:
 			self.firstStart()
 		self.onStart(prev)
 	def onStart(self, prev:int) -> None: pass
-	def onPreStart(self, prev:int) -> None: pass #PREVIOUS TO RESET AND WITHMETA
+	def onPreStart(self, prev:int) -> None:
+		#Executes before reset() and withMeta()
+		pass
 	def firstStart(self) -> None:
-		# most of the time you want to use this instead of __init__ as to load
+		# Most of the time you want to use this instead of onRegister as to load
 		# stuff on demand rather than everything at register time
 		pass
 
@@ -136,9 +137,9 @@ class Scene:
 
 		return self.eventHandler(e)
 	def eventHandler(self, e:pg.event.Event) -> bool:
-		"""runs once for every single event every tick, don't do expensive stuff here
-		or really, don't do anything other than checking events"""
+		# Runs once for every single event every tick, so don't do expensive stuff here
 		return False
+		# You should't use it for anything other than checking events really
 
 	def __globalKeyHandler__(self, ks:list) -> bool:
 		if ks[pg.K_ESCAPE]: return self.close()
@@ -153,11 +154,14 @@ class Scene:
 	def onMouseDown(self, k:int, pos:Vector) -> None: pass
 
 
-	def withMetadata(self, meta:dict): #data needed at the moment, deleted on __globalReset__()
-		if meta: self.metadata.update(meta)	#EXAMPLE: Text to draw on generic dialog bubble
+	def withMetadata(self, meta:dict):
+		# metadata is data needed at the moment, deleted on __globalReset__()
+		# For example Text to draw on generic dialog bubble Scene
+
+		if meta: self.metadata.update(meta)	
 		return self
 	def __repr__(self) -> str:
-		return f"<Scene '{self.name}'({type(self).__name__}) : ID({self.id})>"
+		return f"<Scene '{self.name}'({type(self).__name__}):ID({self.id})>"
 
 	
 
@@ -166,37 +170,34 @@ def addScene(
 	framerate:int=60,
 	windowName:str="Made with Nengin!",
 	windowSize:tuple[int]|int=704, #anything pg.Vector2() accepts will do
-	windowPos:tuple[int]=pg.WINDOWPOS_UNDEFINED, #don't use a single int for this one
+	windowPos:tuple[int]=pg.WINDOWPOS_UNDEFINED, #same but don't use a single int for this one
 	windowIcon:pg.Surface=None, #
 	):
-	#It's better for everyone to check this here
 	name = str(name)
 	framerate = int(framerate)
 	windowName = str(windowName)
 	windowSize = Vector(windowSize)
-	if windowIcon:
-		assert isinstance(windowIcon, pg.Surface)
 
+	if windowIcon: assert isinstance(windowIcon, pg.Surface)
 	if windowPos not in (pg.WINDOWPOS_UNDEFINED, pg.WINDOWPOS_CENTERED):
-		if isinstance(windowPos, int) and windowPos > 32000:
-			raise ValueError("Use a smaller position or declare it as a tuple")
+		if isinstance(windowPos, int) and windowPos > 32768:
+			raise ValueError("Use a smaller window position or pass it as a tuple")
 		else: windowPos = Vector(windowPos)
 
 	def _ret(cls:Scene):
-		nonlocal name, framerate, windowName, windowSize
+		nonlocal name, framerate, windowName, windowSize, windowPos, windowIcon
 		x,y = Vector(windowSize).xyi
 		print(f"Registering: '{name}' [{x} x {y}] (ID:{Scene.__curID__-1})")
 		f = _CONTEXTS[name] = cls(
-			name, framerate,windowName, windowSize, windowPos, windowIcon
-			)
+			name, framerate, windowName, windowSize, windowPos, windowIcon,
+		)
 		f.onRegister()
 		return f
-
 	return _ret
 
 
 window = _wndw(title="Loading...", size=(1,1), hidden=True)
-#window.hide()
+window.hide()
 screen = _rndr(window)
 
 
@@ -207,23 +208,26 @@ class Game:
 	def run(self):
 		try:
 			while True:
+				while self.__changingStack:	# NOTE this prevents recursion but makes
+											# it possible become trapped between two
+											# two(or more) scenes changing into each
+											# other, it also means that calling many
+											# times changeScene() with metadata will
+											# now ignore all but the last given dict
+											# and will just ignore all previous ones
+					self.cur,meta = self.__changingStack.popitem()
+					new:Scene = _CONTEXTS[self.cur]
+					self.scene.__globalOnEnd__(new.id)
+					new.__globalOnStart__(self.scene.id, meta=meta)
+					self.scene = new
 				CLOCK.tick(self.scene.framerate)
 				events = pg.event.get()
 				for e in events:
 					if  e.__dict__.get("window") not in (window,None):
+						#TODO multi-window support
 						raise GenericNenginError("Multiple windows are not supported")
 					self.scene.__globalEventHandler__(e)
-				# handling multiple windows will make core functionality to stop
-				# working. For example resizing will need to be on a per-window
-				# basis instead of a global value and therefore so will be
-				# getting SIZE, MIDDLE, VISIBLE and other useful variables
-				# It's not imposible to implement but it'll break a lot of stuff
-				#
-				# pop-ups, alerts, floating-guis and other "restrictive" windows
-				# on the other hand, are quite possible, their events need to be
-				# handled here then perhaps have one dedicated scene-like object
-				# for reacting to events, drawing on them and other fancy stuff,
-				# for now tho, all of that is on the TODO list.
+
 				self.scene.__globalKeyHandler__(pg.key.get_pressed())
 				self.currentTick += 1
 				self.scene.__globalTick__()
@@ -240,25 +244,32 @@ class Game:
 
 	def __init__(self, starter:str, _debug:bool=False):
 		self._debug = _debug
-		global screen,window
+		global screen, window
 		for v in _CONTEXTS.values(): v.__game__ = self
 		self.scene:Scene
 		self.cur:str
 		self.scene = h = _CONTEXTS[starter]
 		self.cur = h.name
-		window.show()
 		screen.clear()
 		h.__globalOnStart__(-1)	
-		if (h.windowPos == pg.WINDOWPOS_UNDEFINED): window.position = pg.WINDOWPOS_CENTERED
 		screen.present()
-		return self.run()
 		#workaround to make an empty non-ticking scene
+		if (h.windowPos == pg.WINDOWPOS_UNDEFINED):
+			window.position = pg.WINDOWPOS_CENTERED
+		window.show()
+		return self.run()
 
-	def changeSceneTo(self, to:str, metadata:dict={}):
-		new:Scene = _CONTEXTS[to]
-		self.cur = to
-		self.scene.__globalOnEnd__(new.id)
-		new.__globalOnStart__(self.scene.id, meta=metadata)
 
-		self.scene = new
-		return new
+	__changingStack = {}
+
+	def changeSceneTo(self, to:str, metadata:dict={}): #TODO test if this is better than the previous one
+		if to in self.__changingStack: del self.__changingStack[to]
+		self.__changingStack[to] = metadata
+		
+	#def changeSceneTo(self, to:str, metadata:dict={}): #TODO test if this is better than the previous one
+	#	new:Scene = _CONTEXTS[to]
+	#	self.cur = to
+	#	self.scene.__globalOnEnd__(new.id)
+	#	new.__globalOnStart__(self.scene.id, meta=metadata)
+	#	self.scene = new
+	#	return self.scene
