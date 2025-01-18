@@ -52,7 +52,6 @@ class Scene:
 	
 	def __init_subclass__(self, *, debug:bool=False):
 		self.__debug:bool = debug
-		self.__byID__[self.__curID__]:Scene = self
 		self.id:int = self.__curID__
 		Scene.__curID__ += 1
 
@@ -80,7 +79,7 @@ class Scene:
 		self.windowIcon:pg.Surface = windowIcon
 		self.windowPos:Vector = windowPos
 		self.metadata:dict = {}
-		self.id:int
+		self.__byID__[self.id]:Scene = self
 		self.__started__:bool = False
 		self.framecounter:int = 0
 	def onRegister(self) -> None: pass #Use this instead of __init__
