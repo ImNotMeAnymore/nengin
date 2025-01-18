@@ -1,4 +1,4 @@
-#cengine.py, a small pygame-ce wrapper
+#nengin.py, a small pygame-ce wrapper
 #Copyright (C) 2024  notmeanymore
 
 #This library is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@ class _ContextClass(dict):
 	def __getitem__(self, k):
 		try: return super().__getitem__(k)
 		except KeyError: pass
-		raise GenericNenginError(f"Scene {k} not found, registered scenes are:\n\t· {"\n\t· ".join(super().keys())}") 
+		raise GenericNenginError(f"Scene {k} not found, registered scenes are:\n\t· {"\n\t· ".join(super().keys())}")
 _CONTEXTS = _ContextClass()
 
 
@@ -49,10 +49,10 @@ class Scene:
 	def nameOf(cls, id:int): return cls.__byID__[id].name
 	@classmethod
 	def idOf(cls, name:str): return _CONTEXTS[name].id
-	
-	def __init_subclass__(self, *, debug:bool=False):
-		self.__debug:bool = debug
-		self.id:int = self.__curID__
+
+	def __init_subclass__(cls, *, debug:bool=False):
+		cls.__debug:bool = debug
+		cls.id:int = cls.__curID__
 		Scene.__curID__ += 1
 
 	def changeScene(self, to:str, metadata:dict={}) -> None:
@@ -69,17 +69,17 @@ class Scene:
 					windowName:str,
 					windowSize:Vector,
 					windowPos:Vector,
-					windowIcon:pg.Surface=None,
+					windowIcon:pg.Surface|None=None,
 				) -> None:
 		#please redeclare onRegister instead
 		self.name:str = name
 		self.framerate:int = framerate
 		self.windowName:str = windowName
 		self.windowSize:Vector = windowSize
-		self.windowIcon:pg.Surface = windowIcon
+		self.windowIcon:pg.Surface|None = windowIcon
 		self.windowPos:Vector = windowPos
 		self.metadata:dict = {}
-		self.__byID__[self.id]:Scene = self
+		self.__byID__[self.id] = self
 		self.__started__:bool = False
 		self.framecounter:int = 0
 	def onRegister(self) -> None: pass #Use this instead of __init__
@@ -128,8 +128,8 @@ class Scene:
 		# stuff on demand rather than everything at register time
 		pass
 
-	def __globalEventHandler__(self, e:pg.event.Event) -> bool:
-		if e.type == pg.QUIT: return self.close()
+	def __globalEventHandler__(self, e:pg.event.Event) -> bool|None:
+		if e.type == pg.QUIT:				return self.close()
 		elif e.type == pg.KEYDOWN:			return self.onKey(e.key)
 		elif e.type == pg.MOUSEBUTTONUP:	return self.onMouseUp(e.button, e.pos)
 		elif e.type == pg.MOUSEBUTTONDOWN:	return self.onMouseDown(e.button, e.pos)
@@ -140,7 +140,7 @@ class Scene:
 		return False
 		# You should't use it for anything other than checking events really
 
-	def __globalKeyHandler__(self, ks:list) -> bool:
+	def __globalKeyHandler__(self, ks:list) -> bool|None:
 		if ks[pg.K_ESCAPE]: return self.close()
 		return self.keyHandler(ks)
 	def keyHandler(self, ks:list) -> bool:
@@ -156,21 +156,20 @@ class Scene:
 	def withMetadata(self, meta:dict):
 		# metadata is data needed at the moment, deleted on __globalReset__()
 		# For example Text to draw on generic dialog bubble Scene
-
-		if meta: self.metadata.update(meta)	
+		if meta: self.metadata.update(meta)
 		return self
 	def __repr__(self) -> str:
 		return f"<Scene '{self.name}'({type(self).__name__}):ID({self.id})>"
 
-	
+
 
 def addScene(
 	name:str, #required
 	framerate:int=60,
 	windowName:str="Made with Nengin!",
 	windowSize:tuple[int]|int=704, #anything pg.Vector2() accepts will do
-	windowPos:tuple[int]=pg.WINDOWPOS_UNDEFINED, #same but don't use a single int for this one
-	windowIcon:pg.Surface=None, #
+	windowPos:int|Vector=pg.WINDOWPOS_UNDEFINED, #same but don't use a single int for this one
+	windowIcon:pg.Surface|None=None, #
 	):
 	name = str(name)
 	framerate = int(framerate)
@@ -250,7 +249,7 @@ class Game:
 		self.scene = h = _CONTEXTS[starter]
 		self.cur = h.name
 		screen.clear()
-		h.__globalOnStart__(-1)	
+		h.__globalOnStart__(-1)
 		screen.present()
 		#workaround to make an empty non-ticking scene
 		if (h.windowPos == pg.WINDOWPOS_UNDEFINED):
@@ -264,7 +263,7 @@ class Game:
 	def changeSceneTo(self, to:str, metadata:dict={}): #TODO test if this is better than the previous one
 		if to in self.__changingStack: del self.__changingStack[to]
 		self.__changingStack[to] = metadata
-		
+
 	#def changeSceneTo(self, to:str, metadata:dict={}): #TODO test if this is better than the previous one
 	#	new:Scene = _CONTEXTS[to]
 	#	self.cur = to
