@@ -13,7 +13,7 @@ def loadText(text:str, f:font.Font) -> Texture:
 	return Texture.from_surface(screen, f.render(text, True, (255,255,255)))
 
 @addScene("end", windowSize=SIZE)
-class Won(Scene, debug=True):
+class Won(Scene):
 	def firstStart(self):
 		font.init()
 		self.T = loadText("Game Over!", font.SysFont(("comicsans"), round(Y/4)))
@@ -40,7 +40,7 @@ class Won(Scene, debug=True):
 		if k == K_r: self.changeScene("pong")
 
 @addScene("pong", windowSize=SIZE)
-class Game(Scene, debug=True):
+class Game(Scene):
 	def onStart(self, prev:int):
 		self.dr = d = Vector(5,0).rotate(randint(20,33)*choice((-1,1)))
 		self.sd = d.copy()
