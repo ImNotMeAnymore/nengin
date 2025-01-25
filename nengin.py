@@ -121,7 +121,7 @@ class Scene:
 		self.onStart(prev)
 	def onStart(self, prev:int) -> None: pass
 	def onPreStart(self, prev:int) -> None:
-		#Executes before reset() and withMeta()
+		#Executes before onReset() and withMetadata()
 		pass
 	def firstStart(self) -> None:
 		# Most of the time you want to use this instead of onRegister as to load
@@ -250,8 +250,7 @@ class Game:
 		self.cur = h.name
 		screen.clear()
 		h.__globalOnStart__(-1)
-		screen.present()
-		#workaround to make an empty non-ticking scene
+		screen.present() #workaround to make an empty non-ticking scene
 		if (h.windowPos == pg.WINDOWPOS_UNDEFINED):
 			window.position = pg.WINDOWPOS_CENTERED
 		window.show()
@@ -260,14 +259,6 @@ class Game:
 
 	__changingStack = {}
 
-	def changeSceneTo(self, to:str, metadata:dict={}): #TODO test if this is better than the previous one
+	def changeSceneTo(self, to:str, metadata:dict={}):
 		if to in self.__changingStack: del self.__changingStack[to]
 		self.__changingStack[to] = metadata
-
-	#def changeSceneTo(self, to:str, metadata:dict={}): #TODO test if this is better than the previous one
-	#	new:Scene = _CONTEXTS[to]
-	#	self.cur = to
-	#	self.scene.__globalOnEnd__(new.id)
-	#	new.__globalOnStart__(self.scene.id, meta=metadata)
-	#	self.scene = new
-	#	return self.scene
