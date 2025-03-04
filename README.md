@@ -14,7 +14,7 @@ import pygame as pg
 	framerate = 60,				# An int, the target fps, defaults to 60
 	windowName = "Made with Nengin!",	# A string, the name of the window
 	windowSize = 704, 			# Anything pygame.Vector2() accepts will do
-	windowPos = pg.WINDOWPOS_UNDEFINED,	# Same as above but try not to use a single int for this one
+	windowPos = pg.WINDOWPOS_UNDEFINED,	# Same as above
 )
 class GameScene(nengin.Scene):
 	def onDraw(self) -> None:
