@@ -29,6 +29,6 @@ nengin.Game("YourGameScene")
 ```
 
 ## TODO:
-Document code
-More examples
-Prettify pong.py
+- [ ] Document code
+- [ ] More examples
+- [ ] Prettify pong.py
