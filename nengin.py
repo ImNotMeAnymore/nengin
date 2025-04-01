@@ -234,7 +234,7 @@ class Game:
 		except DoneFlag as e:
 			return print(e, "!")
 		except Exception as e:
-			if self._debug: raise e from e
+			if self._debug: raise
 			print(e,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 		finally: pg.quit()
 
