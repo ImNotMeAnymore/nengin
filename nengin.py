@@ -62,7 +62,7 @@ class Scene:
 	def close(self) -> None:
 		"Could be useful to call window.hide() just before"
 		raise DoneFlag(f"{self} Closed the Game")
-	quit = exit = end = done = close #I'm tired of forgetting it's name
+	quit = close #I'm tired of forgetting it's name
 
 	def __init__(	self, name:str,
 					framerate:int,
@@ -103,8 +103,7 @@ class Scene:
 	def onReset(self) -> None: pass
 
 	def __globalOnEnd__(self, next:int) -> None: self.onEnd(next)
-	def onEnd(self, next:int) -> None:
-		pass
+	def onEnd(self, next:int) -> None: pass
 
 	def __globalOnStart__(self, prev:int, meta:dict={}) -> None:
 		self.__globalReset__()
@@ -181,7 +180,6 @@ def addScene(
 		if isinstance(windowPos, int) and windowPos > 32768:
 			raise ValueError("Use a smaller window position or pass it as a tuple")
 		else: windowPos = Vector(windowPos)
-
 	def _ret(cls:Scene):
 		nonlocal name, framerate, windowName, windowSize, windowPos, windowIcon
 		x,y = Vector(windowSize).xyi
@@ -208,11 +206,10 @@ class Game:
 			while True:
 				while self.__changingStack:	# NOTE this prevents recursion but makes
 											# it possible become trapped between two
-											# two(or more) scenes changing into each
+											# or more, if onStart they change to the
 											# other, it also means that calling many
 											# times changeScene() with metadata will
 											# now ignore all but the last given dict
-											# and will just ignore all previous ones
 					self.cur,meta = self.__changingStack.popitem()
 					new:Scene = _CONTEXTS[self.cur]
 					self.scene.__globalOnEnd__(new.id)
@@ -235,7 +232,7 @@ class Game:
 			return print(e, "!")
 		except Exception as e:
 			if self._debug: raise
-			print(e,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+			print(e,"!!!!!!!")
 		finally: pg.quit()
 
 
