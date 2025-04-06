@@ -4,6 +4,18 @@ nengin is a small utility for [pygame-ce](https://github.com/pygame-community/py
 
 mainly made to be used by myself
 
+
+## Installation
+
+To install simply run
+```pip install git+https://github.com/ImNotMeAnymore/nengin```
+
+Then to test it's installed you can run
+```python -m nengin.examples.pong```
+
+
+
+
 ## How to use
 ```python3
 import nengin
@@ -28,7 +40,9 @@ class GameScene(nengin.Scene):
 nengin.Game("YourGameScene")
 ```
 
+
 ## TODO:
 - [ ] Document code
 - [ ] More examples
 - [ ] Prettify pong.py
+- [ ] Publish to PyPi
