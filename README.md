@@ -14,19 +14,15 @@ Then to test it's installed you can run
 ```python -m nengin.examples.pong```
 
 
-
-
 ## How to use
 ```python3
 import nengin
-import pygame as pg
 
 @nengin.addScene(
 	name = "YourGameScene",			# A string, REQUIRED, the name of the scene
 	framerate = 60,				# An int, the target fps, defaults to 60
 	windowName = "Made with Nengin!",	# A string, the name of the window
 	windowSize = 704, 			# Anything pygame.Vector2() accepts will do
-	windowPos = pg.WINDOWPOS_UNDEFINED,	# Same as above
 )
 class GameScene(nengin.Scene):
 	def onDraw(self) -> None:
