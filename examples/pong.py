@@ -10,7 +10,6 @@ X,Y = SIZE = Vector(8,5)*120
 VIEW = Rect(0,0,X,Y)
 
 def almost(n:int|float,w:int|float,e:int|float=5) -> bool: return n-e < w < n+e
-#almost = lambda n,w,e=5: (n-e) < (w) < (n+e)
 
 def loadText(text:str, f:font.Font) -> Texture:
 	return Texture.from_surface(screen, f.render(text, True, (255,255,255)))
@@ -24,12 +23,12 @@ class Won(Scene):
 		self.R.center = VIEW.center
 		self.R.y -= Y/5
 		f = font.SysFont(("comicsans"), round(Y/15))
-		self.t = t = (
+		self.texts = t = (
 			loadText("You lost!  press r to play again or esc to quit",f),
 			loadText("You won!  press r to play again or esc to quit",f),
 		)
-		self.r = (t[0].get_rect(),t[1].get_rect(),)
-		for i in self.r: i.center = VIEW.center+Vector(0,Y/15)
+		self.rects = (t[0].get_rect(),t[1].get_rect(),)
+		for i in self.rects: i.center = VIEW.center+Vector(0,Y/15)
 
 	def onDraw(self):
 		screen.draw_color = 20,20,20
@@ -37,8 +36,8 @@ class Won(Scene):
 		screen.draw_color = 255,255,20
 		self.T.draw(dstrect=self.R)
 		w:bool = bool(self.metadata.get("win"))
-		self.t[w].color = 128,128,128
-		self.t[w].draw(dstrect=self.r[w])	
+		self.texts[w].color = 128,128,128
+		self.texts[w].draw(dstrect=self.rects[w])	
 	def onKey(self, k:int):
 		if k == K_r: self.changeScene("pong")
 

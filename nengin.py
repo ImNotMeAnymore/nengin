@@ -1,3 +1,4 @@
+#!/usr/bin/env python3.13
 #nengin.py, a small pygame-ce wrapper
 #Copyright (C) 2024  notmeanymore
 
@@ -24,14 +25,15 @@ from typing_extensions import Any
 import pygame as pg
 from pygame import Vector2 as __vector, Window as _wndw
 from pygame._sdl2.video import Renderer as _rndr # pyright: ignore
-from typing import Type
+from typing import Callable, Type
 
 
 class _ContextClass(dict[str,"Scene"]):
-	def __getitem__(self, k:str):
+	def __getitem__(self, k:str) -> "Scene":
 		try: return super().__getitem__(k)
 		except KeyError: pass
-		raise GenericNenginError(f"Scene {k} not found, registered scenes are:\n\t· {"\n\t· ".join(super().keys())}")
+		_ = "\n	· "
+		raise GenericNenginError(f"Scene {k} not found, registered scenes are:\n	· {_.join(super().keys())}")
 
 _CONTEXTS = _ContextClass()
 
@@ -56,7 +58,7 @@ class Scene:
 	@classmethod
 	def idOf(cls, name:str) -> int: return _CONTEXTS[name].id
 
-	def __init_subclass__(cls, *, debug:bool=False):
+	def __init_subclass__(cls, *, debug:bool=False) -> None:
 		cls.__debug:bool = debug
 		cls.id:int = cls.__curID__
 		Scene.__curID__ += 1
@@ -158,13 +160,15 @@ class Scene:
 	def onMouseDown(self, k:int, pos:Vector) -> None: pass
 
 
-	def withMetadata(self, meta:dict[Any,Any]):
+	def withMetadata(self, meta:dict[Any,Any]) -> "Scene":
 		# metadata is data needed at the moment, deleted on __globalReset__()
 		# For example Text to draw on generic dialog bubble Scene
 		if meta: self.metadata.update(meta)
 		return self
 	def __repr__(self) -> str:
 		return f"<Scene '{self.name}'({type(self).__name__}):ID({self.id})>"
+
+
 
 
 
@@ -175,14 +179,14 @@ def addScene(
 	windowSize:tuple[int]|int|Vector=704, #anything pg.Vector2() accepts will do
 	windowPos:int|Vector=pg.WINDOWPOS_UNDEFINED, #same but don't use a single int for this one
 	windowIcon:pg.Surface|None=None, #
-	):
+	) -> Callable[[Type[Scene]],Scene]:
 	name = str(name)
 	if windowIcon: assert isinstance(windowIcon, pg.Surface)
 	if windowPos not in (pg.WINDOWPOS_UNDEFINED, pg.WINDOWPOS_CENTERED):
 		if isinstance(windowPos, int) and windowPos > 32768:
 			raise ValueError("Use a smaller window position or pass it as a tuple")
 		else: windowPos = Vector(windowPos)
-	def _ret(cls:Type[Scene]):
+	def _ret(cls:Type[Scene]) -> Scene:
 		nonlocal name, framerate, windowName, windowSize, windowPos, windowIcon
 		x,y = Vector(windowSize).xyi
 		print(f"Registering: '{name}' [{x} x {y}] (ID:{Scene.__curID__-1})")
@@ -203,7 +207,7 @@ CLOCK = pg.time.Clock()
 
 class Game:
 	currentTick = 0
-	def run(self):
+	def run(self) -> None:
 		try:
 			while True:
 				while self.__changingStack:	# NOTE this prevents recursion but makes
@@ -258,6 +262,6 @@ class Game:
 
 	__changingStack:dict[str,dict[Any,Any]] = {}
 
-	def changeSceneTo(self, to:str, metadata:dict[Any,Any]={}):
+	def changeSceneTo(self, to:str, metadata:dict[Any,Any]={}) -> None:
 		if to in self.__changingStack: del self.__changingStack[to]
 		self.__changingStack[to] = metadata
