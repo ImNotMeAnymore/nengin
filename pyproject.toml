@@ -18,4 +18,4 @@ classifiers = [
 dynamic = ["version"]
 
 [tool.setuptools.dynamic]
-version = {attr = "mymodule.__version__"}
+version = {attr = "nengin.__version__"}
