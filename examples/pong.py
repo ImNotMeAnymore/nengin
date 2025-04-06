@@ -1,13 +1,16 @@
+from pygame.key import ScancodeWrapper
 import nengin as ng
 from nengin import Scene, addScene, screen, Vector
 from pygame import font, FRect as Rect, K_DOWN, K_UP, K_w, K_s, K_r
-from pygame._sdl2.video import Texture
+from pygame._sdl2.video import Texture			# pyright: ignore
 from random import choice, randint
 
 
 X,Y = SIZE = Vector(8,5)*120
 VIEW = Rect(0,0,X,Y)
-almost = lambda n,w,e=5: (n-e) < (w) < (n+e)
+
+def almost(n:int|float,w:int|float,e:int|float=5) -> bool: return n-e < w < n+e
+#almost = lambda n,w,e=5: (n-e) < (w) < (n+e)
 
 def loadText(text:str, f:font.Font) -> Texture:
 	return Texture.from_surface(screen, f.render(text, True, (255,255,255)))
@@ -33,7 +36,7 @@ class Won(Scene):
 		screen.clear()
 		screen.draw_color = 255,255,20
 		self.T.draw(dstrect=self.R)
-		w = self.metadata.get("win")
+		w:bool = bool(self.metadata.get("win"))
 		self.t[w].color = 128,128,128
 		self.t[w].draw(dstrect=self.r[w])	
 	def onKey(self, k:int):
@@ -93,10 +96,10 @@ class Game(Scene):
 		self.check()
 		screen.draw_color = 255,255,255
 		screen.fill_rect(self.bl)
-
-	def keyHandler(self, ks:list):
+		
+	def keyHandler(self, ks: ScancodeWrapper) -> bool | None:
 		u,d = ks[K_UP]or ks[K_w],ks[K_DOWN]or ks[K_s]
-		if u and d: return
+		if u and d: return False
 		if u and self.me.top > 0: self.me.top -= 4
 		if d and self.me.bottom < Y: self.me.bottom += 4
 

@@ -19,43 +19,49 @@
 class GenericNenginError(Exception): pass
 if __name__ == "__main__": raise GenericNenginError("Run Your own script. Not Nengin!!!")
 
+from pygame.key import ScancodeWrapper
+from typing_extensions import Any
 import pygame as pg
 from pygame import Vector2 as __vector, Window as _wndw
-from pygame._sdl2.video import Renderer as _rndr
+from pygame._sdl2.video import Renderer as _rndr # pyright: ignore
+from typing import Type
 
-class _ContextClass(dict):
-	def __getitem__(self, k):
+
+class _ContextClass(dict[str,"Scene"]):
+	def __getitem__(self, k:str):
 		try: return super().__getitem__(k)
 		except KeyError: pass
 		raise GenericNenginError(f"Scene {k} not found, registered scenes are:\n\t· {"\n\t· ".join(super().keys())}")
+
 _CONTEXTS = _ContextClass()
 
 
 class Vector(__vector):
 	@property
-	def xi(self): return int(self.x)
+	def xi(self) -> int: return int(self.x)
 	@property
-	def yi(self): return int(self.y)
+	def yi(self) -> int: return int(self.y)
 	@property
-	def xyi(self): return int(self.x),int(self.y)
+	def xyi(self) -> tuple[int,int]: return int(self.x),int(self.y)
 
 
 class DoneFlag(Exception): pass
 class Scene:
-	__byID__:dict = {}
+	__byID__:dict[int,"Scene"] = {}
 	__curID__:int = 0
+	__game__:"None|Game" = None
 
 	@classmethod
-	def nameOf(cls, id:int): return cls.__byID__[id].name
+	def nameOf(cls, id:int) -> str: return cls.__byID__[id].name
 	@classmethod
-	def idOf(cls, name:str): return _CONTEXTS[name].id
+	def idOf(cls, name:str) -> int: return _CONTEXTS[name].id
 
 	def __init_subclass__(cls, *, debug:bool=False):
 		cls.__debug:bool = debug
 		cls.id:int = cls.__curID__
 		Scene.__curID__ += 1
 
-	def changeScene(self, to:str, metadata:dict={}) -> None:
+	def changeScene(self, to:str, metadata:dict[Any,Any]={}) -> None:
 		assert self.__game__
 		assert to != self.name
 		return self.__game__.changeSceneTo(to, metadata)
@@ -68,7 +74,7 @@ class Scene:
 					framerate:int,
 					windowName:str,
 					windowSize:Vector,
-					windowPos:Vector,
+					windowPos:int|Vector,
 					windowIcon:pg.Surface|None=None,
 				) -> None:
 		#please redeclare onRegister instead
@@ -77,8 +83,8 @@ class Scene:
 		self.windowName:str = windowName
 		self.windowSize:Vector = windowSize
 		self.windowIcon:pg.Surface|None = windowIcon
-		self.windowPos:Vector = windowPos
-		self.metadata:dict = {}
+		self.windowPos:int|Vector = windowPos
+		self.metadata:dict[Any,Any] = {}
 		self.__byID__[self.id] = self
 		self.__started__:bool = False
 		self.framecounter:int = 0
@@ -105,7 +111,7 @@ class Scene:
 	def __globalOnEnd__(self, next:int) -> None: self.onEnd(next)
 	def onEnd(self, next:int) -> None: pass
 
-	def __globalOnStart__(self, prev:int, meta:dict={}) -> None:
+	def __globalOnStart__(self, prev:int, meta:dict[Any,Any]={}) -> None:
 		self.__globalReset__()
 		self.onPreStart(prev)
 		self.withMetadata(meta)
@@ -139,10 +145,10 @@ class Scene:
 		return False
 		# You should't use it for anything other than checking events really
 
-	def __globalKeyHandler__(self, ks:list) -> bool|None:
+	def __globalKeyHandler__(self, ks:ScancodeWrapper) -> bool|None:
 		if ks[pg.K_ESCAPE]: return self.close()
 		return self.keyHandler(ks)
-	def keyHandler(self, ks:list) -> bool:
+	def keyHandler(self, ks:ScancodeWrapper) -> bool|None:
 		"runs every tick, ks is list of currently pressed keys"
 		return False
 
@@ -152,7 +158,7 @@ class Scene:
 	def onMouseDown(self, k:int, pos:Vector) -> None: pass
 
 
-	def withMetadata(self, meta:dict):
+	def withMetadata(self, meta:dict[Any,Any]):
 		# metadata is data needed at the moment, deleted on __globalReset__()
 		# For example Text to draw on generic dialog bubble Scene
 		if meta: self.metadata.update(meta)
@@ -166,26 +172,22 @@ def addScene(
 	name:str, #required
 	framerate:int=60,
 	windowName:str="Made with Nengin!",
-	windowSize:tuple[int]|int=704, #anything pg.Vector2() accepts will do
+	windowSize:tuple[int]|int|Vector=704, #anything pg.Vector2() accepts will do
 	windowPos:int|Vector=pg.WINDOWPOS_UNDEFINED, #same but don't use a single int for this one
 	windowIcon:pg.Surface|None=None, #
 	):
 	name = str(name)
-	framerate = int(framerate)
-	windowName = str(windowName)
-	windowSize = Vector(windowSize)
-
 	if windowIcon: assert isinstance(windowIcon, pg.Surface)
 	if windowPos not in (pg.WINDOWPOS_UNDEFINED, pg.WINDOWPOS_CENTERED):
 		if isinstance(windowPos, int) and windowPos > 32768:
 			raise ValueError("Use a smaller window position or pass it as a tuple")
 		else: windowPos = Vector(windowPos)
-	def _ret(cls:Scene):
+	def _ret(cls:Type[Scene]):
 		nonlocal name, framerate, windowName, windowSize, windowPos, windowIcon
 		x,y = Vector(windowSize).xyi
 		print(f"Registering: '{name}' [{x} x {y}] (ID:{Scene.__curID__-1})")
 		f = _CONTEXTS[name] = cls(
-			name, framerate, windowName, windowSize, windowPos, windowIcon,
+			name, int(framerate), str(windowName), Vector(windowSize), windowPos, windowIcon,
 		)
 		f.onRegister()
 		return f
@@ -210,7 +212,7 @@ class Game:
 											# other, it also means that calling many
 											# times changeScene() with metadata will
 											# now ignore all but the last given dict
-					self.cur,meta = self.__changingStack.popitem()
+					self.cur, meta = self.__changingStack.popitem()
 					new:Scene = _CONTEXTS[self.cur]
 					self.scene.__globalOnEnd__(new.id)
 					new.__globalOnStart__(self.scene.id, meta=meta)
@@ -254,8 +256,8 @@ class Game:
 		return self.run()
 
 
-	__changingStack = {}
+	__changingStack:dict[str,dict[Any,Any]] = {}
 
-	def changeSceneTo(self, to:str, metadata:dict={}):
+	def changeSceneTo(self, to:str, metadata:dict[Any,Any]={}):
 		if to in self.__changingStack: del self.__changingStack[to]
 		self.__changingStack[to] = metadata
