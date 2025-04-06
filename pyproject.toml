@@ -10,7 +10,7 @@ requires-python = ">=3.13"
 dependencies = ["pygame-ce>=2.5.0"]
 #TODO: check compat with older versions
 readme = "README.md"
-license = "LICENSE.md"
+license = "LGPL-2.1"
 classifiers = [
 	"Framework :: Pygame-ce",
 	"Programming Language :: Python :: 3",
