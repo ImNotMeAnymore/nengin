@@ -1,11 +1,18 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "nengin"
-version = "0.2b"
-
-readme = "README.md"
-
-requires-python = ">= 3.13"
-dependencies = ["pygame-ce>2.5.0"]
-
-#TODO: check compat with older versions
+name = "nengin_ImNotMeAnymore"
 description = "Object Oriented Wrapper for pygame-ce"
+
+requires-python = ">=3.13"
+dependencies = ["pygame-ce>=2.5.0"]
+#TODO: check compat with older versions
+readme = "README.md"
+license = "LGPLv2"
+classifiers = [
+	"Framework :: Pygame-ce",
+	"Programming Language :: Python :: 3",
+]
+dynamic = ["version"]
