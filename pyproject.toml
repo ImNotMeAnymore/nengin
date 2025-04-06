@@ -1,10 +1,13 @@
 [project]
 name = "nengin"
 version = "0.1b"
-requires-python = ">= 3.13"
-dependencies = ["pygame-ce>2.5.0"]
 
-description = "Object Oriented Wrapper for Pygame-CE"
 readme = "README.md"
 
+requires-python = ">= 3.13"
+dependencies = ["pygame-ce>2.5.0"]
 #TODO: check compat with older versions
+
+
+description = "Object Oriented Wrapper for pygame-ce"
+
