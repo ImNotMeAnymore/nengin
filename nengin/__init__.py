@@ -16,17 +16,16 @@
 #License along with this library; if not, see
 #<https://www.gnu.org/licenses/>.
 
-__version__ = "0.2.2b"
+__version__ = "0.2.3b"
 
 class GenericNenginError(Exception): pass
 if __name__ == "__main__": raise GenericNenginError("Run Your own script. Not Nengin!!!")
 
 from pygame.key import ScancodeWrapper
-from typing_extensions import Any
 import pygame as pg
 from pygame import Vector2 as __vector, Window as _wndw
 from pygame._sdl2.video import Renderer as _rndr # pyright: ignore
-from typing import Callable, Type
+from typing import Callable, Type, Any
 
 
 class _ContextClass(dict[str,"Scene"]):
