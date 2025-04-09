@@ -132,8 +132,9 @@ class Scene:
 		#Executes before onReset() and withMetadata()
 		pass
 	def firstStart(self) -> None:
-		# Most of the time you want to use this instead of onRegister as to load
-		# stuff on demand rather than everything at register time
+		# You can use this this instead of onRegister to load stuff on
+		# demand rather than everything at register time, so that Scenes
+		# never started don't load useless resources
 		pass
 
 	def __globalEventHandler__(self, e:pg.event.Event) -> bool|None:
@@ -162,7 +163,7 @@ class Scene:
 
 	def withMetadata(self, meta:dict[Any,Any]) -> "Scene":
 		# metadata is data needed at the moment, deleted on __globalReset__()
-		# For example Text to draw on generic dialog bubble Scene
+		# For example: Text to draw on a generic dialog bubble Scene
 		if meta: self.metadata.update(meta)
 		return self
 	def __repr__(self) -> str:
@@ -174,7 +175,7 @@ def addScene(
 	windowName:str="Made with Nengin!",
 	windowSize:tuple[int]|int|Vector=704, #anything pg.Vector2() accepts will do
 	windowPos:int|Vector=pg.WINDOWPOS_UNDEFINED, #same but don't use a single int for this one
-	windowIcon:pg.Surface|None=None, #
+	windowIcon:pg.Surface|None=None,
 	) -> Callable[[Type[Scene]],Scene]:
 	name = str(name)
 	if windowIcon: assert isinstance(windowIcon, pg.Surface)
@@ -220,14 +221,12 @@ class Game:
 				events = pg.event.get()
 				for e in events:
 					if  e.__dict__.get("window") not in (window,None):
-						#TODO multi-window support
 						raise GenericNenginError("Multiple windows are not supported")
 					self.scene.__globalEventHandler__(e)
 				self.scene.__globalKeyHandler__(pg.key.get_pressed())
 				self.currentTick += 1
 				self.scene.__globalTick__()
 				self.scene.__globalDraw__()
-		#TODO error checking should lead to crash scene, like Löve2d does
 		except DoneFlag as e:
 			return print(e, "!")
 		except Exception as e:
@@ -251,9 +250,7 @@ class Game:
 		window.show()
 		return self.run()
 
-
 	__changingStack:dict[str,dict[Any,Any]] = {}
-
 	def changeSceneTo(self, to:str, metadata:dict[Any,Any]={}) -> None:
 		if to in self.__changingStack: del self.__changingStack[to]
 		self.__changingStack[to] = metadata
