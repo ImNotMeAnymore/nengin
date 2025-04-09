@@ -102,5 +102,4 @@ class PongGame(Scene):
 		if u and self.me.top > 0: self.me.top -= 4
 		if d and self.me.bottom < Y: self.me.bottom += 4
 
-
-ng.Game("pong")
+if __name__ == "__main__": ng.Game("pong")

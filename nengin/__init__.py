@@ -241,8 +241,6 @@ class Game:
 			print(e,"!!!!!!!")
 		finally: pg.quit()
 
-
-
 	def __init__(self, starter:str, _debug:bool=False):
 		self._debug = _debug
 		global screen, window
