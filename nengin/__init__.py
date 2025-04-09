@@ -32,7 +32,8 @@ class _ContextClass(dict[str,"Scene"]):
 	def __getitem__(self, k:str) -> "Scene":
 		try: return super().__getitem__(k)
 		except KeyError: pass
-		_ = "\n	· "
+		_ = "\n	· " #IIRC this was a workaround to help a linter not display an KeyError
+		# I might change the structure of this later
 		raise GenericNenginError(f"Scene {k} not found, registered scenes are:\n	· {_.join(super().keys())}")
 
 _CONTEXTS = _ContextClass()
@@ -154,8 +155,7 @@ class Scene:
 		"runs every tick, ks is list of currently pressed keys"
 		return False
 
-	def onKey(self, k:int) -> None:
-		"runs once, when key k is pressed"
+	def onKey(self, k:int) -> None: "runs once, when key k is pressed"
 	def onMouseUp(self, k:int, pos:Vector) -> None: pass
 	def onMouseDown(self, k:int, pos:Vector) -> None: pass
 
@@ -167,10 +167,6 @@ class Scene:
 		return self
 	def __repr__(self) -> str:
 		return f"<Scene '{self.name}'({type(self).__name__}):ID({self.id})>"
-
-
-
-
 
 def addScene(
 	name:str, #required
@@ -202,7 +198,6 @@ window = _wndw(title="Loading...", size=(1,1), hidden=True)
 window.hide()
 screen = _rndr(window)
 
-
 CLOCK = pg.time.Clock()
 
 class Game:
@@ -228,7 +223,6 @@ class Game:
 						#TODO multi-window support
 						raise GenericNenginError("Multiple windows are not supported")
 					self.scene.__globalEventHandler__(e)
-
 				self.scene.__globalKeyHandler__(pg.key.get_pressed())
 				self.currentTick += 1
 				self.scene.__globalTick__()

@@ -35,10 +35,3 @@ class GameScene(nengin.Scene):
 # then you simply start the game with:
 nengin.Game("YourGameScene")
 ```
-
-
-## TODO:
-- [ ] Document code
-- [ ] More examples
-- [ ] Prettify pong.py
-- [ ] Publish to PyPi
