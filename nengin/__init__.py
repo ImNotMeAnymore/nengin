@@ -16,7 +16,7 @@
 #License along with this library; if not, see
 #<https://www.gnu.org/licenses/>.
 
-__version__ = "0.2.3b"
+__version__ = "0.2.4b"
 
 class GenericNenginError(Exception): pass
 if __name__ == "__main__": raise GenericNenginError("Run Your own script. Not Nengin!!!")
@@ -234,13 +234,13 @@ class Game:
 			print(e,"!!!!!!!")
 		finally: pg.quit()
 
-	def __init__(self, starter:str, _debug:bool=False):
+	def __init__(self, starter:str, metadata={}, _debug:bool=False):
 		self._debug = _debug
 		global screen, window
 		for v in _CONTEXTS.values(): v.__game__ = self
 		self.scene:Scene
 		self.cur:str
-		self.scene = h = _CONTEXTS[starter]
+		self.scene = h = _CONTEXTS[starter].withMetadata(metadata)
 		self.cur = h.name
 		screen.clear()
 		h.__globalOnStart__(-1)

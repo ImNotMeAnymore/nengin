@@ -1,7 +1,7 @@
 from pygame.key import ScancodeWrapper
 import nengin as ng
 from nengin import Scene, addScene, screen, Vector
-from pygame import font, FRect as Rect, K_r, K_SPACE
+from pygame import font, FRect as Rect, K_SPACE
 from pygame._sdl2.video import Texture			# pyright: ignore
 from random import randint
 
@@ -23,8 +23,8 @@ class GameOver(Scene):
 		self.gameOverRect.y -= Y/5
 		f = font.SysFont(("comicsans","ubuntu","sans"), round(Y/15))
 		self.texts = t = (
-			loadText("You lost!  press r to play again or esc to quit",f),
-			loadText("You won!  press r to play again or esc to quit",f),
+			loadText("You lost!  press spacebar to play again or esc to quit",f),
+			loadText("Press spacebar to play or esc to quit",f),
 		)
 		self.rects = (t[0].get_rect(),t[1].get_rect(),)
 		for i in self.rects: i.center = VIEW.center+Vector(0,Y/15)
@@ -38,7 +38,7 @@ class GameOver(Scene):
 		self.texts[w].color = 128,128,128
 		self.texts[w].draw(dstrect=self.rects[w])	
 	def onKey(self, k:int):
-		if k == K_r: self.changeScene("jump")
+		if k == K_SPACE: self.changeScene("jump")
 
 @addScene("jump", windowSize=SIZE)
 class JumpGame(Scene):
@@ -95,4 +95,4 @@ class JumpGame(Scene):
 	def keyHandler(self, ks: ScancodeWrapper) -> bool | None:
 		if ks[K_SPACE] and not self.t: self.t = 1
 
-if __name__ == "__main__": ng.Game("jump")
+if __name__ == "__main__": ng.Game("end",{"win":True})
