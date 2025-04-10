@@ -34,7 +34,6 @@ class GameOver(Scene):
 		screen.clear()
 		screen.draw_color = 255,255,20
 		self.gameOverText.draw(dstrect=self.gameOverRect)
-		print(self.metadata)
 		w:bool = bool(self.metadata.get("win"))
 		self.texts[w].color = 128,128,128
 		self.texts[w].draw(dstrect=self.rects[w])	
