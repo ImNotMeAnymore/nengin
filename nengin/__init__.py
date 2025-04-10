@@ -16,7 +16,7 @@
 #License along with this library; if not, see
 #<https://www.gnu.org/licenses/>.
 
-__version__ = "0.2.4b"
+__version__ = "0.2.5b"
 
 class GenericNenginError(Exception): pass
 if __name__ == "__main__": raise GenericNenginError("Run Your own script. Not Nengin!!!")
