@@ -18,11 +18,11 @@ def loadText(text:str, f:font.Font) -> Texture:
 class GameOver(Scene):
 	def firstStart(self):
 		font.init()
-		self.gameOverText = loadText("Game Over!", font.SysFont(("comicsans"), round(Y/4)))
+		self.gameOverText = loadText("Game Over!", font.SysFont(("comicsans","ubuntu","sans"), round(Y/4)))
 		self.gameOverRect = self.gameOverText.get_rect()
 		self.gameOverRect.center = VIEW.center
 		self.gameOverRect.y -= Y/5
-		f = font.SysFont(("comicsans"), round(Y/15))
+		f = font.SysFont(("comicsans","ubuntu","sans"), round(Y/15))
 		self.texts = t = (
 			loadText("You lost!  press r to play again or esc to quit",f),
 			loadText("You won!  press r to play again or esc to quit",f),
