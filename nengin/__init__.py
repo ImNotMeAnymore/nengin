@@ -206,12 +206,14 @@ class Game:
 	def run(self) -> None:
 		try:
 			while True:
-				while self.__changingStack:	# NOTE this prevents recursion but makes
-											# it possible become trapped between two
-											# or more, if onStart they change to the
-											# other, it also means that calling many
-											# times changeScene() with metadata will
-											# now ignore all but the last given dict
+				while self.__changingStack:
+						# NOTE: this prevents recursion but makes
+						# it possible to become trapped between a
+						# Scene changing to another and the other
+						# changing back to the original one, also
+						# changing to a Scene more than once will
+						# now ignore the metadata argument of all
+						# but the last call to changeScene(Scene)
 					self.cur, meta = self.__changingStack.popitem()
 					new:Scene = _CONTEXTS[self.cur]
 					self.scene.__globalOnEnd__(new.id)
@@ -234,7 +236,7 @@ class Game:
 			print(e,"!!!!!!!")
 		finally: pg.quit()
 
-	def __init__(self, starter:str, metadata={}, _debug:bool=False):
+	def __init__(self, starter:str, metadata:dict[Any,Any]={}, _debug:bool=False):
 		self._debug = _debug
 		global screen, window
 		for v in _CONTEXTS.values(): v.__game__ = self
