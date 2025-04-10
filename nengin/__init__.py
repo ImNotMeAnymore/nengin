@@ -242,10 +242,10 @@ class Game:
 		for v in _CONTEXTS.values(): v.__game__ = self
 		self.scene:Scene
 		self.cur:str
-		self.scene = h = _CONTEXTS[starter].withMetadata(metadata)
+		self.scene = h = _CONTEXTS[starter]
 		self.cur = h.name
 		screen.clear()
-		h.__globalOnStart__(-1)
+		h.__globalOnStart__(-1, metadata)
 		screen.present() #workaround to make an empty non-ticking scene
 		if (h.windowPos == pg.WINDOWPOS_UNDEFINED):
 			window.position = pg.WINDOWPOS_CENTERED
