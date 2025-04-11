@@ -12,6 +12,24 @@ VIEW = Rect(0,0,X,Y)
 def loadText(text:str, f:font.Font) -> Texture:
 	return Texture.from_surface(screen, f.render(text, True, (255,255,255)))
 
+
+
+
+@addScene("start", windowSize=SIZE)
+class Start(Scene):
+	def firstStart(self): #and in theory the only one
+		font.init()
+		self.titleText = loadText("Jumper!", font.SysFont(("comicsans","ubuntu","sans"), round(Y/4)))
+		self.titleRect = _r =  self.titleText.get_rect()
+		_r.center = VIEW.center
+		_r.y -= Y/5		
+		f = font.SysFont(("comicsans","ubuntu","sans"), round(Y/15))
+		self.subTitle = loadText("Press spacebar to play or esc to quit",f)
+		self.subRect = _r = self.subTitle.get_rect()
+		_r.center = VIEW.center
+		_r.y += Y/15
+
+
 @addScene("end", windowSize=SIZE)
 class GameOver(Scene):
 	#this could be it's own file, with a generic ending Scene
@@ -40,14 +58,14 @@ class GameOver(Scene):
 	def onKey(self, k:int):
 		if k == K_SPACE: self.changeScene("jump")
 
-@addScene("jump", windowSize=SIZE)
+@addScene("jump", windowSize=SIZE, framerate=40)
 class JumpGame(Scene):
 	def onStart(self, prev:int):
 		self.pos = 0
 		self.player = p = Rect(0,0,8*4,5*10)
 		p.centery = VIEW.centerx
 		p.centerx = VIEW.centery/3*2
-		self.t = 0
+		self.t = 1
 		self.OBS = []
 
 	def onDraw(self):
@@ -60,7 +78,7 @@ class JumpGame(Scene):
 			if y > Ypos:
 				self.t = 0
 				self.player.centery = Ypos
-		self.pos += 8+(self.pos/5000)
+		self.pos += 8+self.pos/9999
 		screen.draw_color = 255,255,20
 		screen.fill_rect(self.player)
 		screen.draw_color = 235,235,235
