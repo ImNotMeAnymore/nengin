@@ -9,7 +9,7 @@ description = "Object Oriented Wrapper for pygame-ce"
 requires-python = ">=3.12"
 dependencies = ["pygame-ce>=2.5.0"]
 readme = "README.md"
-license = "LGPL-2.1"
+license = "LGPL-2.1-or-later"
 classifiers = [
 	"Framework :: Pygame-ce",
 	"Programming Language :: Python :: 3",

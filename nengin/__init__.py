@@ -16,7 +16,7 @@
 #License along with this library; if not, see
 #<https://www.gnu.org/licenses/>.
 
-__version__ = "0.2.5b"
+__version__ = "0.2.6b"
 
 class GenericNenginError(Exception): pass
 if __name__ == "__main__": raise GenericNenginError("Run Your own script. Not Nengin!!!")
@@ -66,7 +66,6 @@ class Scene:
 
 	def changeScene(self, to:str, metadata:dict[Any,Any]={}) -> None:
 		assert self.__game__
-		assert to != self.name
 		return self.__game__.changeSceneTo(to, metadata)
 	def close(self) -> None:
 		"Could be useful to call window.hide() just before"
@@ -181,7 +180,7 @@ def addScene(
 	if windowIcon: assert isinstance(windowIcon, pg.Surface)
 	if windowPos not in (pg.WINDOWPOS_UNDEFINED, pg.WINDOWPOS_CENTERED):
 		if isinstance(windowPos, int) and windowPos > 32768:
-			raise ValueError("Use a smaller window position or pass it as a tuple")
+			raise ValueError("Use a smaller window position or pass windowPos as a tuple")
 		else: windowPos = Vector(windowPos)
 	def _ret(cls:Type[Scene]) -> Scene:
 		nonlocal name, framerate, windowName, windowSize, windowPos, windowIcon
@@ -195,7 +194,7 @@ def addScene(
 	return _ret
 
 
-window = _wndw(title="Loading...", size=(1,1), hidden=True)
+window = _wndw(title="Loading...", size=(1,1), hidden=True, opengl=True	)
 window.hide()
 screen = _rndr(window)
 
