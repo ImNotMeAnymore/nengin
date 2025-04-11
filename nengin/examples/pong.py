@@ -14,7 +14,7 @@ def almost(n:int|float,w:int|float,e:int|float=5) -> bool: return n-e < w < n+e
 def loadText(text:str, f:font.Font) -> Texture:
 	return Texture.from_surface(screen, f.render(text, True, (255,255,255)))
 
-@addScene("end", windowSize=SIZE)
+@addScene("pong-end", windowSize=SIZE)
 class GameOver(Scene):
 	def firstStart(self):
 		font.init()
@@ -55,6 +55,7 @@ class PongGame(Scene):
 		self.sh = b.copy()
 		self.pongs = 0
 	def check(self):
+		#I REALLY need to fix this, I have no idea what's what
 		bl,sh,dr,sd,no,me = self.bl,self.sh,self.dr,self.sd,self.no,self.me
 		r = Rect(0,0,4,100)
 		if dr.x > 0: r.topleft = no.left,no.y
@@ -69,8 +70,8 @@ class PongGame(Scene):
 				dr.xy *= n
 				if randint(0,16): sd.xy *= n
 		
-		if bl.left <= 0: return self.changeScene("end",{"win":False})
-		if bl.right >= X: return self.changeScene("end",{"win":True})
+		if bl.left <= 0: return self.changeScene("pong-end",{"win":False})
+		if bl.right >= X: return self.changeScene("pong-end",{"win":True})
 
 		if bl.top <= 0 or bl.bottom >= Y: dr.y *= -1
 		if sh.top <= 0 or sh.bottom >= Y:
