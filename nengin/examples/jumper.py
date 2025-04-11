@@ -12,53 +12,55 @@ VIEW = Rect(0,0,X,Y)
 def loadText(text:str, f:font.Font) -> Texture:
 	return Texture.from_surface(screen, f.render(text, True, (255,255,255)))
 
-
-
-
-@addScene("start", windowSize=SIZE)
-class Start(Scene):
-	def firstStart(self): #and in theory the only one
+# OOP example, you can just define a generic Scene class and inherit 
+class GenericTitleSubtitle(Scene):
+	def firstStart(self, title, sub):
 		font.init()
-		self.titleText = loadText("Jumper!", font.SysFont(("comicsans","ubuntu","sans"), round(Y/4)))
+		self.titleText = loadText(title, font.SysFont(("comicsans","ubuntu","sans"), round(Y/4)))
 		self.titleRect = _r =  self.titleText.get_rect()
 		_r.center = VIEW.center
 		_r.y -= Y/5		
 		f = font.SysFont(("comicsans","ubuntu","sans"), round(Y/15))
-		self.subTitle = loadText("Press spacebar to play or esc to quit",f)
+		self.subTitle = loadText(sub,f)
 		self.subRect = _r = self.subTitle.get_rect()
 		_r.center = VIEW.center
 		_r.y += Y/15
-
-
-@addScene("end", windowSize=SIZE)
-class GameOver(Scene):
-	#this could be it's own file, with a generic ending Scene
-	def firstStart(self):
-		font.init()
-		self.gameOverText = loadText("Game Over!", font.SysFont(("comicsans","ubuntu","sans"), round(Y/4)))
-		self.gameOverRect = self.gameOverText.get_rect()
-		self.gameOverRect.center = VIEW.center
-		self.gameOverRect.y -= Y/5
-		f = font.SysFont(("comicsans","ubuntu","sans"), round(Y/15))
-		self.texts = t = (
-			loadText("You lost!  press spacebar to play again or esc to quit",f),
-			loadText("Press spacebar to play or esc to quit",f),
-		)
-		self.rects = (t[0].get_rect(),t[1].get_rect(),)
-		for i in self.rects: i.center = VIEW.center+Vector(0,Y/15)
-
 	def onDraw(self):
 		screen.draw_color = 20,20,20
 		screen.clear()
-		screen.draw_color = 255,255,20
-		self.gameOverText.draw(dstrect=self.gameOverRect)
-		w:bool = bool(self.metadata.get("win"))
-		self.texts[w].color = 128,128,128
-		self.texts[w].draw(dstrect=self.rects[w])	
-	def onKey(self, k:int):
-		if k == K_SPACE: self.changeScene("jump")
+		self.titleText.draw(dstrect=self.titleRect)
+		self.subTitle.draw(dstrect=self.subRect)
 
-@addScene("jump", windowSize=SIZE, framerate=40)
+@addScene("jumper-start", windowSize=SIZE)
+class Start(GenericTitleSubtitle):
+	def firstStart(self):
+		super().firstStart("Jumper!","Press spacebar to play or esc to quit")
+		self.titleText.color = 255,255,20
+		self.subTitle.color = 128,128,20
+		self.player = p = Rect(0,0,8*4,5*10)
+		p.centery = VIEW.centerx
+		p.centerx = VIEW.centery/3*2
+	def onKey(self, k:int):
+		if k == K_SPACE: self.changeScene("jumper")
+	def onDraw(self):
+		super().onDraw()
+		screen.draw_color = 255,255,20
+		screen.fill_rect(self.player)
+		screen.draw_color = 235,235,235
+		screen.logical_size = 40,25 #Don't use logical_size please, this is just because I'm lazy
+		screen.draw_line((0,21),(40,21))
+		screen.logical_size = SIZE
+
+@addScene("jumper-gameover", windowSize=SIZE)
+class GameOver(GenericTitleSubtitle):
+	def firstStart(self):
+		super().firstStart("Game Over!","You lost! Press spacebar to play again or esc to quit")
+		self.titleText.color = 255,255,128
+		self.subTitle.color = 128,128,128
+	def onKey(self, k:int):
+		if k == K_SPACE: self.changeScene("jumper")
+
+@addScene("jumper", windowSize=SIZE)
 class JumpGame(Scene):
 	def onStart(self, prev:int):
 		self.pos = 0
@@ -67,7 +69,6 @@ class JumpGame(Scene):
 		p.centerx = VIEW.centery/3*2
 		self.t = 1
 		self.OBS = []
-
 	def onDraw(self):
 		screen.draw_color = 20,20,20
 		screen.clear()
@@ -82,7 +83,6 @@ class JumpGame(Scene):
 		screen.draw_color = 255,255,20
 		screen.fill_rect(self.player)
 		screen.draw_color = 235,235,235
-
 		screen.logical_size = 40,25
 		#logical_size is really buggy, you shouldn't touch it under normal circumstances
 		#https://github.com/pygame-community/pygame-ce/issues/2923
@@ -90,12 +90,11 @@ class JumpGame(Scene):
 		#https://github.com/pygame-community/pygame-ce/issues/3245
 		screen.draw_line((0,21),(40,21))
 		screen.logical_size = SIZE
-		
+
 		if not self.OBS: self.OBS.append(self.pos+SIZE.x+160)
 		elif self.OBS[-1]+300 < self.pos+SIZE.x:
 			if not randint(0,55): self.OBS.append(self.pos+SIZE.x+160)
-		
-		
+
 		self.OBS = [i for i in self.OBS if i > self.pos]
 		
 		screen.draw_color = 235,20,235
@@ -106,11 +105,10 @@ class JumpGame(Scene):
 			r.right = i-self.pos
 			screen.fill_rect(r)
 			if r.colliderect(self.player): dead = True
-		
-		if dead: self.changeScene("end")
+		if dead: self.changeScene("jumper-gameover", {"score":round(self.pos/100)})
 			#screen.draw_line((i-self.pos,0),(i-self.pos,SIZE.y))
-		
+
 	def keyHandler(self, ks: ScancodeWrapper) -> bool | None:
 		if ks[K_SPACE] and not self.t: self.t = 1
 
-if __name__ == "__main__": ng.Game("end",{"win":True})
+if __name__ == "__main__": ng.Game("jumper-start")
