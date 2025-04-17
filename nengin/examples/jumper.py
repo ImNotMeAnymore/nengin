@@ -14,7 +14,7 @@ def loadText(text:str, f:font.Font) -> Texture:
 
 # OOP example, you can just define a generic Scene class and inherit 
 class GenericTitleSubtitle(Scene):
-	def firstStart(self, title, sub):
+	def firstStart(self, title:str, sub:str):
 		font.init()
 		self.titleText = loadText(title, font.SysFont(("comicsans","ubuntu","sans"), round(Y/4)))
 		self.titleRect = _r =  self.titleText.get_rect()
@@ -49,7 +49,7 @@ class Start(GenericTitleSubtitle):
 		screen.draw_color = 235,235,235
 		screen.logical_size = 40,25 #Don't use logical_size please, this is just because I'm lazy
 		screen.draw_line((0,21),(40,21))
-		screen.logical_size = SIZE
+		screen.logical_size = SIZE.xyi
 
 @addScene("jumper-gameover", windowSize=SIZE)
 class GameOver(GenericTitleSubtitle):
@@ -68,7 +68,7 @@ class JumpGame(Scene):
 		p.centery = VIEW.centerx
 		p.centerx = VIEW.centery/3*2
 		self.t = 1
-		self.OBS = []
+		self.OBS:list[float] = []
 	def onDraw(self):
 		screen.draw_color = 20,20,20
 		screen.clear()
@@ -89,11 +89,12 @@ class JumpGame(Scene):
 		#https://github.com/pygame-community/pygame-ce/issues/3244
 		#https://github.com/pygame-community/pygame-ce/issues/3245
 		screen.draw_line((0,21),(40,21))
-		screen.logical_size = SIZE
+		screen.logical_size = SIZE.xyi
 
 		if not self.OBS: self.OBS.append(self.pos+SIZE.x+160)
 		elif self.OBS[-1]+300 < self.pos+SIZE.x:
 			if not randint(0,55): self.OBS.append(self.pos+SIZE.x+160)
+
 
 		self.OBS = [i for i in self.OBS if i > self.pos]
 		
