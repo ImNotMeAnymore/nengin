@@ -14,7 +14,9 @@ def loadText(text:str, f:font.Font) -> Texture:
 
 # OOP example, you can just define a generic Scene class and inherit 
 class GenericTitleSubtitle(Scene):
-	def firstStart(self, title:str, sub:str):
+	def firstStart(self):
+		title:str = self.metadata["title"]
+		sub:str = self.metadata["sub"]
 		font.init()
 		self.titleText = loadText(title, font.SysFont(("comicsans","ubuntu","sans"), round(Y/4)))
 		self.titleRect = _r =  self.titleText.get_rect()
@@ -34,7 +36,9 @@ class GenericTitleSubtitle(Scene):
 @addScene("jumper-start", windowSize=SIZE)
 class Start(GenericTitleSubtitle):
 	def firstStart(self):
-		super().firstStart("Jumper!","Press spacebar to play or esc to quit")
+		self.metadata["title"] = "Jumper!"
+		self.metadata["sub"] = "Press spacebar to play or esc to quit"
+		super().firstStart()
 		self.titleText.color = 255,255,20
 		self.subTitle.color = 128,128,20
 		self.player = p = Rect(0,0,8*4,5*10)
@@ -54,7 +58,9 @@ class Start(GenericTitleSubtitle):
 @addScene("jumper-gameover", windowSize=SIZE)
 class GameOver(GenericTitleSubtitle):
 	def firstStart(self):
-		super().firstStart("Game Over!","You lost! Press spacebar to play again or esc to quit")
+		self.metadata["title"] = "Game Over!"
+		self.metadata["sub"] = "You lost! Press spacebar to play again or esc to quit"
+		super().firstStart()
 		self.titleText.color = 255,255,128
 		self.subTitle.color = 128,128,128
 	def onKey(self, k:int):
@@ -68,7 +74,7 @@ class JumpGame(Scene):
 		p.centery = VIEW.centerx
 		p.centerx = VIEW.centery/3*2
 		self.t = 1
-		self.OBS:list[float] = []
+		self.obstacles:list[float] = []
 	def onDraw(self):
 		screen.draw_color = 20,20,20
 		screen.clear()
@@ -91,18 +97,18 @@ class JumpGame(Scene):
 		screen.draw_line((0,21),(40,21))
 		screen.logical_size = SIZE.xyi
 
-		if not self.OBS: self.OBS.append(self.pos+SIZE.x+160)
-		elif self.OBS[-1]+300 < self.pos+SIZE.x:
-			if not randint(0,55): self.OBS.append(self.pos+SIZE.x+160)
+		if not self.obstacles: self.obstacles.append(self.pos+SIZE.x+160)
+		elif self.obstacles[-1]+300 < self.pos+SIZE.x:
+			if not randint(0,55): self.obstacles.append(self.pos+SIZE.x+160)
 
 
-		self.OBS = [i for i in self.OBS if i > self.pos]
+		self.obstacles = [i for i in self.obstacles if i > self.pos]
 		
 		screen.draw_color = 235,20,235
 		r = Rect(0,0,80,48)
 		r.centery = Ypos
 		dead = False
-		for i in self.OBS:
+		for i in self.obstacles:
 			r.right = i-self.pos
 			screen.fill_rect(r)
 			if r.colliderect(self.player): dead = True
