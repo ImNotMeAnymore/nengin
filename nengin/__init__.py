@@ -172,7 +172,7 @@ def addScene(
 	name:str, #required
 	framerate:int=60,
 	windowName:str="Made with Nengin!",
-	windowSize:tuple[int]|int|Vector=704, #anything pg.Vector2() accepts will do
+	windowSize:tuple[int,int]|int|Vector=704, #anything pg.Vector2() accepts will do
 	windowPos:int|Vector=pg.WINDOWPOS_UNDEFINED, #same but don't use a single int for this one
 	windowIcon:pg.Surface|None=None,
 	) -> Callable[[Type[Scene]],Scene]:
