@@ -90,7 +90,7 @@ class PongGame(Scene):
 		screen.fill_rect(self.me)
 		screen.fill_rect(self.no)
 		self.bl.center += self.dr
-		if self.framecounter%60:
+		if self.frame_counter%60:
 			if randint(0,32): self.sh.center += self.sd
 			else: self.sh.center = self.bl.center
 		self.check()

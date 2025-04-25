@@ -16,7 +16,7 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-__version__ = "0.2.7b"
+__version__ = "0.2.8b"
 
 class GenericNenginError(Exception):
 	pass
@@ -67,22 +67,22 @@ class Scene:
 		cls.__debug:bool = debug
 		cls.id:int = cls.__current_ID__
 		Scene.__current_ID__ += 1
-	def changeScene(self, to:str, metadata:dict[Any,Any]={}) -> None:
+	def change_scene(self, to:str, metadata:dict[Any,Any]={}) -> None:
 		return self.__game__.changeSceneTo(to, metadata)
-	change_scene = changeScene
+	changeScene = change_scene
 	
 	def close(self) -> None:
-		"Could be useful to call window.hide() just before"
+		window.hide()
 		raise DoneFlag(f"{self} Closed the Game")
 	quit = close #I'm tired of forgetting it's name
-	def __init__(	self, name:str,
-					framerate:int,
-					windowName:str,
-					windowSize:Vector,
-					windowPos:int|Vector,
-					windowIcon:pygame.Surface|None=None,
-				) -> None:
-		#please redeclare onRegister instead
+	def __init__(self,
+				name:str,
+				framerate:int,
+				windowName:str,
+				windowSize:Vector,
+				windowPos:int|Vector,
+				windowIcon:pygame.Surface|None=None,
+			) -> None:
 		self.name:str = name
 		self.framerate:int = framerate
 		self.windowName:str = windowName
@@ -92,12 +92,12 @@ class Scene:
 		self.metadata:dict[Any,Any] = {}
 		self.__byID__[self.id] = self
 		self.__started__:bool = False
-		self.framecounter:int = 0
-	def onRegister(self) -> None: pass #Use this instead of __init__
+		self.frame_counter:int = 0
+	def onRegister(self) -> None: pass
 
 	def __globalTick__(self) -> None:
 		self.onTick()
-		self.framecounter += 1
+		self.frame_counter += 1
 	def onTick(self) -> None: pass
 
 	def __globalDraw__(self) -> None:
