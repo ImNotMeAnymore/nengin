@@ -115,7 +115,7 @@ class JumpGame(Scene):
 		if dead: self.changeScene("jumper-gameover", {"score":round(self.pos/100)})
 			#screen.draw_line((i-self.pos,0),(i-self.pos,SIZE.y))
 
-	def keyHandler(self, ks: ScancodeWrapper) -> bool | None:
+	def keyHandler(self, ks: ScancodeWrapper) -> None:
 		if ks[K_SPACE] and not self.t: self.t = 1
 
 if __name__ == "__main__": ng.Game("jumper-start")

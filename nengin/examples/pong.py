@@ -97,9 +97,9 @@ class PongGame(Scene):
 		screen.draw_color = 255,255,255
 		screen.fill_rect(self.bl)
 		
-	def keyHandler(self, ks: ScancodeWrapper) -> bool | None:
+	def keyHandler(self, ks: ScancodeWrapper) -> None:
 		u,d = ks[K_UP]or ks[K_w],ks[K_DOWN]or ks[K_s]
-		if u and d: return False
+		if u and d: return
 		if u and self.me.top > 0: self.me.top -= 4
 		if d and self.me.bottom < Y: self.me.bottom += 4
 
