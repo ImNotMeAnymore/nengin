@@ -16,7 +16,8 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-__version__ = "0.2.8b"
+__version__ = "0.3.8b"
+# 1.0.0 when I have some docs
 
 class GenericNenginError(Exception):
 	pass
@@ -25,6 +26,7 @@ if __name__ == "__main__":
 	raise GenericNenginError("Run Your own script. Not Nengin!!!")
 
 import pygame
+print("nengin", __version__)
 from pygame.key import ScancodeWrapper
 from pygame import Vector2 as _vector, Window as _window
 from pygame._sdl2.video import Renderer as _renderer
@@ -33,13 +35,10 @@ from typing import Callable, Type, Any
 
 class _ContextClass(dict[str,"Scene"]):
 	def __getitem__(self, k:str) -> "Scene":
-		try:
-			return super().__getitem__(k)
-		except KeyError:
-			pass
-		_ = "\n	· "#IIRC this variable is set here just so pyright doesn't complain
-		# erroneously. I might change the structure of this later
-		raise GenericNenginError(f'Scene "{k}" not found, registered scenes are:\n	· {_.join(super().keys())}')
+		try: return super().__getitem__(k)
+		except KeyError: pass
+		s = "\n	· ".join(super().keys())
+		raise GenericNenginError(f"Scene {k} not found, registered scenes are:\n	· {s}")
 
 SCENES = _ContextClass()
 
@@ -71,8 +70,13 @@ class Scene:
 		return self.__game__.changeSceneTo(to, metadata)
 	changeScene = change_scene
 	
-	def close(self) -> None:
+	def onClose(self):
+		"""This should not iterfere with normal closing (as in, raising another error,
+		or cancel the close conditionally), change .close() directly for that"""
 		window.hide()
+	def close(self) -> None:
+		"forces the game to close, ignores onEnd(), but calls onClose()"
+		self.onClose()
 		raise DoneFlag(f"{self} Closed the Game")
 	quit = close #I'm tired of forgetting it's name
 	def __init__(self,
@@ -93,34 +97,37 @@ class Scene:
 		self.__byID__[self.id] = self
 		self.__started__:bool = False
 		self.frame_counter:int = 0
-	def onRegister(self) -> None: pass
+	def onRegister(self) -> None:
+		"runs when the scene is being first registered"
 
 	def __globalTick__(self) -> None:
 		self.onTick()
 		self.frame_counter += 1
-	def onTick(self) -> None: pass
+	def onTick(self) -> None:
+		"runs every frame"
 
 	def __globalDraw__(self) -> None:
 		self.onDraw()
 		screen.present()
 	def onDraw(self) -> None:
+		"last thing that runs every frame"
 		screen.draw_color = 32,36,32
 		screen.clear()
 
-	def __globalReset__(self) -> None:
+	def __globalReset__(self, prev:int) -> None:
 		#self.eat("bugs")
-		self.onReset()
+		self.onReset(prev)
 		self.metadata.clear()
-	def onReset(self) -> None: pass
+	def onReset(self) -> None:
+		"first thing to run every time scene is started"
+		pass
 
 	def __globalOnEnd__(self, next:int) -> None: self.onEnd(next)
 	def onEnd(self, next:int) -> None: pass
 
 	def __globalOnStart__(self, prev:int, meta:dict[Any,Any]={}) -> None:
 		self.__globalReset__()
-		self.onPreStart(prev)
 		self.withMetadata(meta)
-		self.onReset()
 		window.title = self.windowName
 		if self.windowIcon: window.set_icon(self.windowIcon)
 		if (self.windowSize.xyi != window.size): window.size = self.windowSize.xyi
@@ -130,10 +137,7 @@ class Scene:
 			self.firstStart()
 		self.onStart(prev)
 	def onStart(self, prev:int) -> None: pass
-	def onPreStart(self, prev:int) -> None:
-		"""Executes every time the scene is started, before onReset()
-		and withMetadata() unlike onStart()"""
-		pass
+	
 	def firstStart(self) -> None:
 		"""You can use this this instead of onRegister to load stuff on demand
 		rather than everything at register time, so that Scenes never started
@@ -214,7 +218,7 @@ screen = _renderer(window)
 CLOCK = pygame.time.Clock()
 
 class Game:
-	currentTick = 0
+	global_tick = 0
 	def run(self) -> None:
 		try:
 			while True:
@@ -238,15 +242,20 @@ class Game:
 						raise GenericNenginError("Multiple windows are not supported (yet)")
 					self.scene.__globalEventHandler__(e)
 				self.scene.__globalKeyHandler__(pygame.key.get_pressed())
-				self.currentTick += 1
+				self.global_tick += 1
 				self.scene.__globalTick__()
 				self.scene.__globalDraw__()
-		except DoneFlag as e:
-			return print(e, "!")
+		except DoneFlag as e: return print(e)
 		except Exception as e:
 			if self._debug: raise
 			print(e,"!!!!!!!")
-		finally: pygame.quit()
+		finally: self.finisher()
+
+	def finisher(self):
+		# this function gets executed at the very end of Game, after all scenes have been
+		# dealt with, don't redeclare it if you don't need to
+		#		mainly for debugging
+		pygame.quit()
 
 	def __init__(self, starter:str, metadata:dict[Any,Any]={}, _debug:bool=False):
 		self._debug = _debug

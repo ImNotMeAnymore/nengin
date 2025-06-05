@@ -57,6 +57,7 @@ class PongGame(Scene):
 	def check(self):
 		#I REALLY need to fix this, I have no idea what's what
 		bl,sh,dr,sd,no,me = self.bl,self.sh,self.dr,self.sd,self.no,self.me
+		#why did I do this
 		r = Rect(0,0,4,100)
 		if dr.x > 0: r.topleft = no.left,no.y
 		else: r.topright = me.right,me.y
