@@ -118,7 +118,7 @@ class Scene:
 		#self.eat("bugs")
 		self.onReset(prev)
 		self.metadata.clear()
-	def onReset(self) -> None:
+	def onReset(self. prev:int) -> None:
 		"first thing to run every time scene is started"
 		pass
 
@@ -126,7 +126,7 @@ class Scene:
 	def onEnd(self, next:int) -> None: pass
 
 	def __globalOnStart__(self, prev:int, meta:dict[Any,Any]={}) -> None:
-		self.__globalReset__()
+		self.__globalReset__(prev)
 		self.withMetadata(meta)
 		window.title = self.windowName
 		if self.windowIcon: window.set_icon(self.windowIcon)
