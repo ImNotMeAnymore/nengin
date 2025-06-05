@@ -16,7 +16,7 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-__version__ = "0.3.9b"
+__version__ = "0.3.10b"
 # 1.0.0 when I have some docs
 
 class GenericNenginError(Exception):
@@ -118,7 +118,7 @@ class Scene:
 		#self.eat("bugs")
 		self.onReset(prev)
 		self.metadata.clear()
-	def onReset(self. prev:int) -> None:
+	def onReset(self, prev:int) -> None:
 		"first thing to run every time scene is started"
 		pass
 
