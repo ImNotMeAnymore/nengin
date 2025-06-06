@@ -14,6 +14,12 @@ class FlappyMenu(Scene):
 		self.rect = Rect(0,0,30,30)
 		self.rect.center = self.pos
 
+@addScene("flappy-menu", windowSize=SIZE)
+class FlappyGameOver(Scene):
+	def onStart(self, prev: int) -> None:
+		self.pos = Vector(X//5,Y//3)
+		self.rect = Rect(0,0,30,30)
+		self.rect.center = self.pos
 	
 
 @addScene("flappy-game", windowSize=SIZE)
@@ -28,7 +34,7 @@ class FlappyGame(Scene):
 		self.pos += self.momentum
 		self.rect.center = self.pos
 		
-		if self.rect.bottom >= Y-30: self.changeScene("flappy-death")
+		if self.rect.bottom >= Y-30: self.changeScene("flappy-over")
 
 	def onKey(self, k: int) -> None:
 		#19*18/4 (85.5) would not allow it to go outside the screen, but 20 will do
@@ -44,4 +50,4 @@ class FlappyGame(Scene):
 		screen.draw_color = 255,0,0
 		screen.draw_line((0,Y-30),(X,Y-30))
 
-if __name__ == "__main__": ng.Game("flappy-menu")
+if __name__ == "__main__": ng.Game("flappy-game")
