@@ -2,8 +2,6 @@
 
 nengin is a small utility for [pygame-ce](https://github.com/pygame-community/pygame-ce), made to ease the development of games with multiple scenes all independent from each other, such as GUIs, different gameplay loops, etc.
 
-mainly made to be used by myself
-
 
 ## Installation
 
