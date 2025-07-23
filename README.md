@@ -1,35 +1,58 @@
 # This is nengin
 
-nengin is a small utility for [pygame-ce](https://github.com/pygame-community/pygame-ce), made to ease the development of games with multiple scenes all independent from each other, such as GUIs, different gameplay loops, etc.
+Nengin is a small utility for [pygame-ce](https://github.com/pygame-community/pygame-ce), designed to make it easy to develop games with multiple independent scenes (such as GUIs, menus, and gameplay loops) in an object-oriented and consistent way.
 
+**Features:**
+- Simple scene registration and switching
+- Clean separation of game logic per scene
+- Minimal boilerplate for rapid prototyping
+
+---
 
 ## Installation
 
-To install simply run
-```pip install git+https://github.com/ImNotMeAnymore/nengin```
+**Requirements:**  
+- Python 3.12+
+- [pygame-ce](https://github.com/pygame-community/pygame-ce)
 
-Then to test it's installed you can run
-```python -m nengin.examples.pong```
+Install with:
+```bash
+pip install git+https://github.com/ImNotMeAnymore/nengin
+```
 
+You can test it's installed and working with:
+```bash
+python -m nengin.examples.pong
+```
+
+---
 
 ## How to use
-```python3
-import nengin
+```python
+import nengin as ng
+import pygame as pg
 
-@nengin.addScene(
-	name = "YourGameScene",			# A string, REQUIRED, the name of the scene
-	framerate = 60,				# An int, the target fps, defaults to 60
-	windowName = "Made with Nengin!",	# A string, the name of the window
-	windowSize = 704, 			# Anything pygame.Vector2() accepts will do
+@ng.addScene(
+	name = "YourGameScene",          # REQUIRED: the name of the scene
+	framerate = 60,                  # Target FPS (default: 60)
+	windowName = "Made with Nengin!",# Window title
+	windowSize = 704,                # Anything pygame.Vector2() accepts
 )
-class GameScene(nengin.Scene):
+class CustomGameScene(ng.Scene):
+	color = [255,0,0]
 	def onDraw(self) -> None:
-		nengin.screen.draw_color = 0,0,0,0
-		nengin.screen.clear()
-		nengin.screen.draw_color = 255,0,0,0
-		nengin.screen.draw_triangle((100,500),(500,100),(650,650))
+		ng.screen.draw_color = 0,0,0,0
+		ng.screen.clear()
+		ng.screen.draw_color = color
+		ng.screen.draw_triangle((100,500),(500,100),(650,650))
+	def onKey(self, k):
+		if k == pg.K_SPACE:
+			self.color.append(self.color.pop(0))
 
-
-# then you simply start the game with:
-nengin.Game("YourGameScene")
+# Start the game with:
+ng.Game("YourGameScene")
 ```
+
+
+
+

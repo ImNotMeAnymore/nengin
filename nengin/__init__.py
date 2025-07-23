@@ -201,7 +201,7 @@ class StaticScene(Scene):
 
 
 
-def addScene(
+def add_scene(
 	name:str, #required
 	framerate:int=60,
 	windowName:str="Made with Nengin!",
@@ -225,7 +225,7 @@ def addScene(
 		f.onRegister()
 		return f
 	return _ret
-
+addScene = add_scene
 
 window = _window(title="Loading...", size=(1,1), hidden=True, opengl=True)
 screen = _renderer(window)
