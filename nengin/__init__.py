@@ -33,10 +33,26 @@ from pygame._sdl2.video import Renderer as _renderer
 from typing import Callable, Type, Any
 
 
+"""
+# In case I need it, no sense to activate it when there are no warnings
+# to activate it simply comment out the first triple "
+
+import warnings
+
+def deprecated_alias(new:str):
+	def dec(f):
+		def wr(__fn=f,__nn=new *a, **k):
+			warnings.warn(f"{__fn.__name__} is deprecated, use {__nn} instead.",DeprecationWarning,stacklevel=2)
+			return __fn(*a, **k)
+		return wr
+	return dec
+" """ 
+
 class _ContextClass(dict[str,"Scene"]):
 	def __getitem__(self, k:str) -> "Scene":
 		try: return super().__getitem__(k)
 		except KeyError: pass
+		if not self: raise GenericNenginError("No scenes have been registered!")
 		s = "\n	· ".join(super().keys())
 		raise GenericNenginError(f"Scene {k} not found, registered scenes are:\n	· {s}")
 
@@ -47,8 +63,7 @@ class Vector(_vector):
 	@property
 	def xyi(self) -> tuple[int,int]: return int(self.x),int(self.y)
 
-class DoneFlag(Exception):
-	pass
+class DoneFlag(Exception): pass
 
 
 class Scene:
@@ -57,18 +72,18 @@ class Scene:
 	__game__:"Game"
 	@classmethod
 	def name_of(cls, id:int) -> str: return cls.__byID__[id].name
-	nameOf = name_of
 	@classmethod
 	def id_of(cls, name:str) -> int: return SCENES[name].id
 	idOf = id_of
+	nameOf = name_of
 
 	def __init_subclass__(cls, *, _debug:bool=False) -> None:
 		cls._debug:bool = _debug
 		cls.id:int = cls.__current_ID__
 		Scene.__current_ID__ += 1
-	def change_scene(self, to:str, metadata:dict[Any,Any]={}) -> None:
-		return self.__game__.changeSceneTo(to, metadata)
-	changeScene = change_scene
+	def change(self, to:str, metadata:dict[Any,Any]={}) -> None:
+		return self.__game__.change_scene(to, metadata)
+	changeScene = change
 	
 	def onClose(self):
 		"""This should not iterfere with normal closing (as in, raising another error,
@@ -218,10 +233,8 @@ screen = _renderer(window)
 CLOCK = pygame.time.Clock()
 
 class Game:
-	
 	@property
-	def _debug(self): return self._global_debug or self.scene._debug
-	
+	def _debug(self): return self.__global_debug or self.scene._debug
 	global_tick = 0
 	def run(self) -> None:
 		try:
@@ -242,7 +255,7 @@ class Game:
 				CLOCK.tick(self.scene.framerate)
 				events = pygame.event.get()
 				for e in events:
-					if  e.__dict__.get("window") not in (window,None):
+					if e.__dict__.get("window") not in (window,None):
 						raise GenericNenginError("Multiple windows are not supported (yet)")
 					self.scene.__globalEventHandler__(e)
 				self.scene.__globalKeyHandler__(pygame.key.get_pressed())
@@ -262,7 +275,7 @@ class Game:
 		pygame.quit()
 
 	def __init__(self, starter:str, metadata:dict[Any,Any]={}, _debug:bool=False):
-		self._global_debug = _debug
+		self.__global_debug = _debug
 		global screen, window
 		for v in SCENES.values(): v.__game__ = self
 		self.scene:Scene
@@ -278,6 +291,7 @@ class Game:
 		return self.run()
 
 	__changingStack:dict[str,dict[Any,Any]] = {}
-	def changeSceneTo(self, to:str, metadata:dict[Any,Any]={}) -> None:
+	def change_scene(self, to:str, metadata:dict[Any,Any]={}) -> None:
 		if to in self.__changingStack: del self.__changingStack[to]
-		self.__changingStack[to] = metadata
+		self.__changingStack[str(to)] = metadata
+	changeSceneTo = change_scene
