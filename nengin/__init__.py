@@ -16,7 +16,7 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-__version__ = "0.3.10b"
+__version__ = "0.3.11b"
 # 1.0.0 when I have some docs
 
 class GenericNenginError(Exception):
@@ -62,8 +62,8 @@ class Scene:
 	def id_of(cls, name:str) -> int: return SCENES[name].id
 	idOf = id_of
 
-	def __init_subclass__(cls, *, debug:bool=False) -> None:
-		cls.__debug:bool = debug
+	def __init_subclass__(cls, *, _debug:bool=False) -> None:
+		cls._debug:bool = _debug
 		cls.id:int = cls.__current_ID__
 		Scene.__current_ID__ += 1
 	def change_scene(self, to:str, metadata:dict[Any,Any]={}) -> None:
@@ -218,6 +218,10 @@ screen = _renderer(window)
 CLOCK = pygame.time.Clock()
 
 class Game:
+	
+	@property
+	def _debug(self): return self._global_debug or self.scene._debug
+	
 	global_tick = 0
 	def run(self) -> None:
 		try:
@@ -258,7 +262,7 @@ class Game:
 		pygame.quit()
 
 	def __init__(self, starter:str, metadata:dict[Any,Any]={}, _debug:bool=False):
-		self._debug = _debug
+		self._global_debug = _debug
 		global screen, window
 		for v in SCENES.values(): v.__game__ = self
 		self.scene:Scene
