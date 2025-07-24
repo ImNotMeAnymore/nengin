@@ -16,7 +16,7 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-__version__ = "0.3.11b"
+__version__ = "0.3.12b"
 # 1.0.0 when I have some docs
 
 class GenericNenginError(Exception):
@@ -26,7 +26,7 @@ if __name__ == "__main__":
 	raise GenericNenginError("Run Your own script. Not Nengin!!!")
 
 import pygame
-print("nengin", __version__)
+#print("nengin", __version__)
 from pygame.key import ScancodeWrapper
 from pygame import Vector2 as _vector, Window as _window
 from pygame._sdl2.video import Renderer as _renderer
@@ -81,8 +81,8 @@ class Scene:
 		cls._debug:bool = _debug
 		cls.id:int = cls.__current_ID__
 		Scene.__current_ID__ += 1
-	def change(self, to:str, metadata:dict[Any,Any]={}) -> None:
-		return self.__game__.change_scene(to, metadata)
+	def change(self, to:str, metadata:dict[Any,Any]|None=None) -> None:
+		return self.__game__.change_scene(to, metadata or {})
 	changeScene = change
 	
 	def onClose(self):
@@ -140,9 +140,9 @@ class Scene:
 	def __globalOnEnd__(self, next:int) -> None: self.onEnd(next)
 	def onEnd(self, next:int) -> None: pass
 
-	def __globalOnStart__(self, prev:int, meta:dict[Any,Any]={}) -> None:
+	def __globalOnStart__(self, prev:int, meta:dict[Any,Any]|None=None) -> None:
 		self.__globalReset__(prev)
-		self.withMetadata(meta)
+		self.withMetadata(meta or {})
 		window.title = self.windowName
 		if self.windowIcon: window.set_icon(self.windowIcon)
 		if (self.windowSize.xyi != window.size): window.size = self.windowSize.xyi
@@ -274,7 +274,7 @@ class Game:
 		#		mainly for debugging
 		pygame.quit()
 
-	def __init__(self, starter:str, metadata:dict[Any,Any]={}, _debug:bool=False):
+	def __init__(self, starter:str, metadata:dict[Any,Any]|None=None, _debug:bool=False):
 		self.__global_debug = _debug
 		global screen, window
 		for v in SCENES.values(): v.__game__ = self
@@ -283,7 +283,7 @@ class Game:
 		self.scene = h = SCENES[starter]
 		self.cur = h.name
 		screen.clear()
-		h.__globalOnStart__(-1, metadata)
+		h.__globalOnStart__(-1, metadata or {})
 		screen.present() #workaround to make an empty non-ticking scene
 		if (h.windowPos == pygame.WINDOWPOS_UNDEFINED):
 			window.position = pygame.WINDOWPOS_CENTERED
@@ -291,7 +291,7 @@ class Game:
 		return self.run()
 
 	__changingStack:dict[str,dict[Any,Any]] = {}
-	def change_scene(self, to:str, metadata:dict[Any,Any]={}) -> None:
+	def change_scene(self, to:str, metadata:dict[Any,Any]|None=None) -> None:
 		if to in self.__changingStack: del self.__changingStack[to]
-		self.__changingStack[str(to)] = metadata
+		self.__changingStack[str(to)] = metadata or 	{}
 	changeSceneTo = change_scene
