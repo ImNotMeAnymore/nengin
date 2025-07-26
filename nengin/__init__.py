@@ -58,13 +58,10 @@ class _ContextClass(dict[str,"Scene"]):
 
 SCENES = _ContextClass()
 
-
 class Vector(_vector):
 	@property
 	def xyi(self) -> tuple[int,int]: return int(self.x),int(self.y)
-
 class DoneFlag(Exception): pass
-
 
 class Scene:
 	__byID__:dict[int,"Scene"] = {}
@@ -160,8 +157,8 @@ class Scene:
 		"""
 
 	def __globalEventHandler__(self, e:pygame.event.Event) -> None:
-		if e.type == pygame.QUIT:				return self.close()
-		elif e.type == pygame.KEYDOWN:			return self.onKey(e.key)
+		if e.type == pygame.QUIT:	return self.close()
+		elif e.type == pygame.KEYDOWN:	return self.onKey(e.key)
 		elif e.type == pygame.MOUSEBUTTONUP:	return self.onMouseUp(e.button, e.pos)
 		elif e.type == pygame.MOUSEBUTTONDOWN:	return self.onMouseDown(e.button, e.pos)
 
@@ -194,12 +191,6 @@ class Scene:
 
 class StaticScene(Scene):
 	pass
-
-
-
-
-
-
 
 def add_scene(
 	name:str, #required
