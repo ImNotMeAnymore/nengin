@@ -7,9 +7,7 @@ import pygame
 #print("nengin", __version__)
 from pygame.key import ScancodeWrapper
 from pygame import Vector2 as _vector, Window as _window
-from pygame._sdl2.video import Renderer as _renderer
 from typing import Callable, Type, Any
-
 
 """
 # In case I need it, no sense to activate it when there are no warnings
@@ -26,7 +24,6 @@ def deprecated_alias(new:str):
 	return dec
 " """
 
-
 class _ContextClass(dict[str,"GenericScene"]):
 	def __getitem__(self, k:str) -> "GenericScene":
 		try: return super().__getitem__(k)
@@ -42,14 +39,15 @@ class Vector(_vector):
 	def xyi(self) -> tuple[int,int]: return int(self.x),int(self.y)
 class DoneFlag(Exception): pass
 
+def createScreen():
+	raise GenericNenginError("You shouldn't call _generic.py directly")
 
 window = _window(title="Loading...", size=(1,1), hidden=True, opengl=True)
-
 
 class GenericScene:
 	__byID__:dict[int,"GenericScene"] = {}
 	__current_ID__:int = 0
-	__game__:"Game"
+	__game__:"GenericGame"
 	@classmethod
 	def name_of(cls, id:int) -> str: return cls.__byID__[id].name
 	@classmethod
@@ -167,17 +165,17 @@ def add_scene(
 	windowSize:tuple[int,int]|int|Vector=704, #anything pygame.Vector2() accepts will do
 	windowPos:int|Vector=pygame.WINDOWPOS_UNDEFINED, #same but don't use a single int for this one
 	windowIcon:pygame.Surface|None=None,
-	) -> Callable[[Type[Scene]],Scene]:
+	) -> Callable[[Type[GenericScene]],GenericScene]:
 	name = str(name)
 	if windowIcon: assert isinstance(windowIcon, pygame.Surface)
 	if windowPos not in (pygame.WINDOWPOS_UNDEFINED, pygame.WINDOWPOS_CENTERED):
 		if isinstance(windowPos, int) and windowPos > 32768:
 			raise ValueError("Use a smaller window position or pass windowPos as a tuple")
 		else: windowPos = Vector(windowPos)
-	def _ret(cls:Type[Scene]) -> Scene:
+	def _ret(cls:Type[GenericScene]) -> GenericScene:
 		nonlocal name, framerate, windowName, windowSize, windowPos, windowIcon
 		x,y = Vector(windowSize).xyi
-		print(f"Registering: '{name}' [{x} x {y}] (ID:{Scene.__current_ID__-1})")
+		print(f"Registering: '{name}' [{x} x {y}] (ID:{GenericScene.__current_ID__-1})")
 		f = SCENES[name] = cls(
 			name, int(framerate), str(windowName), Vector(windowSize), windowPos, windowIcon,
 		)
@@ -189,7 +187,7 @@ addScene = add_scene
 CLOCK = pygame.time.Clock()
 
 
-class Game:
+class GenericGame:
 	@property
 	def _debug(self): return self.__global_debug or self.scene._debug
 	global_tick = 0
@@ -230,6 +228,9 @@ class Game:
 		# dealt with, don't redeclare it if you don't need to
 		#		mainly for debugging
 		pygame.quit()
+	
+	def _prepareWindow(self) -> None:
+		raise GenericNenginError("You shouldn't call _generic.py directly")
 
 	def __init__(self, starter:str, metadata:dict[Any,Any]|None=None, _debug:bool=False):
 		self.__global_debug = _debug
@@ -239,7 +240,7 @@ class Game:
 		self.cur:str
 		self.scene = h = SCENES[starter]
 		self.cur = h.name
-		#screen.clear()
+		self._prepareWindow()
 		h.__globalOnStart__(-1, metadata or {})
 		window.flip() #workaround to make an empty non-ticking scene
 		if (h.windowPos == pygame.WINDOWPOS_UNDEFINED):
