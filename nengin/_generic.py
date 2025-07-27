@@ -242,7 +242,7 @@ class GenericGame:
 		self.cur = h.name
 		self._prepareWindow()
 		h.__globalOnStart__(-1, metadata or {})
-		window.flip() #workaround to make an empty non-ticking scene
+		#window.flip() #workaround to make an empty non-ticking scene
 		if (h.windowPos == pygame.WINDOWPOS_UNDEFINED):
 			window.position = pygame.WINDOWPOS_CENTERED
 		window.show()
