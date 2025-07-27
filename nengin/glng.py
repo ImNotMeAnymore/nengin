@@ -9,6 +9,7 @@ from OpenGL.GL import (
 	glClearColor, glClear, GL_COLOR_BUFFER_BIT,glBegin,GL_LINE_LOOP,
 	glVertex2f,glEnd,glColor4f
 )
+import moderngl
 
 class ScreenWrapper:
 	# implements every SDL2 screen method in openGL, for compat purposes
@@ -36,7 +37,7 @@ class ScreenWrapper:
 		glEnd()
 
 screen = ScreenWrapper()
-
+context = moderngl.create_context()
 
 class Scene(GenericScene):
 	def onDraw(self) -> None:
