@@ -1,3 +1,5 @@
+__version__ = "0.4.0b"
+
 
 class GenericNenginError(Exception): pass
 if __name__ == "__main__":
