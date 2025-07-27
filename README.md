@@ -43,7 +43,7 @@ class CustomGameScene(ng.Scene):
 	def onDraw(self) -> None:
 		ng.screen.draw_color = 0,0,0,0
 		ng.screen.clear()
-		ng.screen.draw_color = color
+		ng.screen.draw_color = self.color
 		ng.screen.draw_triangle((100,500),(500,100),(650,650))
 	def onKey(self, k):
 		if k == pg.K_SPACE:
