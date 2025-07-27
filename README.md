@@ -17,8 +17,13 @@ Nengin is a small utility for [pygame-ce](https://github.com/pygame-community/py
 
 Install with:
 ```bash
-pip install git+https://github.com/ImNotMeAnymore/nengin
+pip install git+https://github.com/ImNotMeAnymore/nengin #stable
 ```
+or
+```bash
+pip install git+https://github.com/ImNotMeAnymore/nengin.git@experimental #latest
+```
+
 
 You can test it's installed and working with:
 ```bash
