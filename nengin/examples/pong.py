@@ -1,6 +1,7 @@
 from pygame.key import ScancodeWrapper
-import nengin as ng
-from nengin import Scene, addScene, screen, Vector
+import nengin.ng as ng
+from nengin.ng import screen
+from nengin import Scene, addScene, Vector
 from pygame import font, FRect as Rect, K_DOWN, K_UP, K_w, K_s, K_r
 from pygame._sdl2.video import Texture			# pyright: ignore
 from random import choice, randint
