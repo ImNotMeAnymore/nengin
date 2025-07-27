@@ -1,27 +1,7 @@
-#!/usr/bin/env python3.13
-# nengin.py, a small pygame-ce wrapper
-# Copyright (C) 2024  notmeanymore
 
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
-
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, see
-# <https://www.gnu.org/licenses/>.
-
-__version__ = "0.3.13b"
-# 1.0.0 when I have some docs
-
-class NenginError(Exception): pass
-
-if __name__ == "__main__": raise NenginError("Run Your own script. Not Nengin!!!")
+class GenericNenginError(Exception): pass
+if __name__ == "__main__":
+	raise GenericNenginError("Run Your own script. Not Nengin(nor this file)!!!!")
 
 import pygame
 #print("nengin", __version__)
@@ -31,8 +11,24 @@ from pygame._sdl2.video import Renderer as _renderer
 from typing import Callable, Type, Any
 
 
-class _ContextClass(dict[str,"Scene"]):
-	def __getitem__(self, k:str) -> "Scene":
+"""
+# In case I need it, no sense to activate it when there are no warnings
+# to activate it simply comment out the first triple "
+# TODO: actually use this, what's the point of having it if I don't
+import warnings
+
+def deprecated_alias(new:str):
+	def dec(f):
+		def wr(__fn=f,__nn=new *a, **k):
+			warnings.warn(f"{__fn.__name__} is deprecated, use {__nn} instead.",DeprecationWarning,stacklevel=2)
+			return __fn(*a, **k)
+		return wr
+	return dec
+" """
+
+
+class _ContextClass(dict[str,"GenericScene"]):
+	def __getitem__(self, k:str) -> "GenericScene":
 		try: return super().__getitem__(k)
 		except KeyError: pass
 		if not self: raise GenericNenginError("No scenes have been registered!")
@@ -46,8 +42,12 @@ class Vector(_vector):
 	def xyi(self) -> tuple[int,int]: return int(self.x),int(self.y)
 class DoneFlag(Exception): pass
 
-class Scene:
-	__byID__:dict[int,"Scene"] = {}
+
+window = _window(title="Loading...", size=(1,1), hidden=True, opengl=True)
+
+
+class GenericScene:
+	__byID__:dict[int,"GenericScene"] = {}
 	__current_ID__:int = 0
 	__game__:"Game"
 	@classmethod
@@ -56,15 +56,13 @@ class Scene:
 	def id_of(cls, name:str) -> int: return SCENES[name].id
 	idOf = id_of
 	nameOf = name_of
-
 	def __init_subclass__(cls, *, _debug:bool=False) -> None:
 		cls._debug:bool = _debug
 		cls.id:int = cls.__current_ID__
-		Scene.__current_ID__ += 1
+		GenericScene.__current_ID__ += 1
 	def change(self, to:str, metadata:dict[Any,Any]|None=None) -> None:
 		return self.__game__.change_scene(to, metadata or {})
 	changeScene = change
-	
 	def onClose(self):
 		"""This should not iterfere with normal closing (as in, raising another error,
 		or cancel the close conditionally), change .close() directly for that"""
@@ -94,21 +92,19 @@ class Scene:
 		self.frame_counter:int = 0
 	def onRegister(self) -> None:
 		"runs when the scene is being first registered"
-
 	def __globalTick__(self) -> None:
 		self.onTick()
 		self.frame_counter += 1
 	def onTick(self) -> None:
 		"runs every frame"
-
 	def __globalDraw__(self) -> None:
 		self.onDraw()
 		window.flip()
 	def onDraw(self) -> None:
+		raise GenericNenginError("You shouldn't call _generic.py directly")
 		"last thing that runs every frame"
-		screen.draw_color = 32,36,32
-		screen.clear()
-
+		#screen.draw_color = 32,36,32
+		#screen.clear()
 	def __globalReset__(self, prev:int) -> None:
 		#self.eat("bugs")
 		self.onReset(prev)
@@ -116,10 +112,8 @@ class Scene:
 	def onReset(self, prev:int) -> None:
 		"first thing to run every time scene is started"
 		pass
-
 	def __globalOnEnd__(self, next:int) -> None: self.onEnd(next)
 	def onEnd(self, next:int) -> None: pass
-
 	def __globalOnStart__(self, prev:int, meta:dict[Any,Any]|None=None) -> None:
 		self.__globalReset__(prev)
 		self.withMetadata(meta or {})
@@ -132,13 +126,11 @@ class Scene:
 			self.firstStart()
 		self.onStart(prev)
 	def onStart(self, prev:int) -> None: pass
-	
 	def firstStart(self) -> None:
 		"""You can use this this instead of onRegister to load stuff on demand
 		rather than everything at register time, so that Scenes never started
 		don't load useless resources
 		"""
-
 	def __globalEventHandler__(self, e:pygame.event.Event) -> None:
 		if e.type == pygame.QUIT:	return self.close()
 		elif e.type == pygame.KEYDOWN:	return self.onKey(e.key)
@@ -150,18 +142,15 @@ class Scene:
 		"""Runs once for every single event every tick, so don't do expensive stuff here
 		
 		You should't use it for anything other than checking events really"""
-
 	def __globalKeyHandler__(self, ks:ScancodeWrapper) -> None:
 		if ks[pygame.K_ESCAPE]: return self.close()
 		return self.keyHandler(ks)
 	def keyHandler(self, ks:ScancodeWrapper) -> None:
 		"runs every tick, ks is list of currently pressed keys"
-
 	def onKey(self, k:int) -> None: "runs once, when key k is pressed"
 	def onMouseUp(self, k:int, pos:Vector) -> None: pass
 	def onMouseDown(self, k:int, pos:Vector) -> None: pass
-
-	def withMetadata(self, meta:dict[Any,Any]) -> "Scene":
+	def withMetadata(self, meta:dict[Any,Any]) -> "GenericScene":
 		"""metadata is data needed at the moment, deleted on __globalReset__()
 		For example: Text to draw on a generic dialog bubble Scene
 		"""
@@ -170,10 +159,6 @@ class Scene:
 	def __repr__(self) -> str:
 		return f"<Scene '{self.name}'({str(type(self).__name__)}):ID({self.id})>"
 		#I don't need str() here but pyright is complaining
-
-
-class StaticScene(Scene):
-	pass
 
 def add_scene(
 	name:str, #required
@@ -201,10 +186,8 @@ def add_scene(
 	return _ret
 addScene = add_scene
 
-window = _window(title="Loading...", size=(1,1), hidden=True, opengl=True)
-screen:_renderer = _renderer(window)
-
 CLOCK = pygame.time.Clock()
+
 
 class Game:
 	@property
@@ -222,7 +205,7 @@ class Game:
 						# now ignore the metadata argument of all
 						# but the last call to changeScene(Scene)
 					self.cur, meta = self.__changingStack.popitem()
-					new:Scene = SCENES[self.cur]
+					new:GenericScene = SCENES[self.cur]
 					self.scene.__globalOnEnd__(new.id)
 					new.__globalOnStart__(self.scene.id, meta=meta)
 					self.scene = new
@@ -250,15 +233,15 @@ class Game:
 
 	def __init__(self, starter:str, metadata:dict[Any,Any]|None=None, _debug:bool=False):
 		self.__global_debug = _debug
-		global screen, window
+		global window
 		for v in SCENES.values(): v.__game__ = self
-		self.scene:Scene
+		self.scene:GenericScene
 		self.cur:str
 		self.scene = h = SCENES[starter]
 		self.cur = h.name
-		screen.clear()
+		#screen.clear()
 		h.__globalOnStart__(-1, metadata or {})
-		screen.present() #workaround to make an empty non-ticking scene
+		window.flip() #workaround to make an empty non-ticking scene
 		if (h.windowPos == pygame.WINDOWPOS_UNDEFINED):
 			window.position = pygame.WINDOWPOS_CENTERED
 		window.show()
