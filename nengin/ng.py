@@ -16,18 +16,15 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-
-# 1.0.0 when I have some docs
-
 class NenginError(Exception): pass
 
 if __name__ == "__main__": raise NenginError("Run Your own script. Not Nengin!!!")
 
 from . import (
-	window,GenericScene,GenericGame,Vector,add_scene,addScene,CLOCK
+	window,GenericScene,GenericGame,add_scene
 )
 from pygame._sdl2.video import Renderer as _renderer
-
+addScene = add_scene
 
 screen:_renderer = _renderer(window)
 

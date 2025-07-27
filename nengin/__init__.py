@@ -1,5 +1,23 @@
-__version__ = "0.4.1b"
+#!/usr/bin/env python3.13
+# nengin.py, a small pygame-ce wrapper
+# Copyright (C) 2024  notmeanymore
 
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, see
+# <https://www.gnu.org/licenses/>.
+
+__version__ = "0.4.2b"
+# 1.0.0 when I have some docs
 
 class GenericNenginError(Exception): pass
 if __name__ == "__main__":
@@ -103,17 +121,18 @@ class GenericScene:
 	def onDraw(self) -> None:
 		raise GenericNenginError("You shouldn't call _generic.py directly")
 		"last thing that runs every frame"
-		#screen.draw_color = 32,36,32
-		#screen.clear()
 	def __globalReset__(self, prev:int) -> None:
 		#self.eat("bugs")
 		self.onReset(prev)
 		self.metadata.clear()
-	def onReset(self, prev:int) -> None:
-		"first thing to run every time scene is started"
-		pass
 	def __globalOnEnd__(self, next:int) -> None: self.onEnd(next)
-	def onEnd(self, next:int) -> None: pass
+	def onEnd(self, next:int) -> None:
+		"run before the next scene starts"
+	def onReset(self, prev:int) -> None:
+		"very first thing to run every time scene is started"
+	def onStart(self, prev:int) -> None:
+		"very last thing to run every time scene is started"
+
 	def __globalOnStart__(self, prev:int, meta:dict[Any,Any]|None=None) -> None:
 		self.__globalReset__(prev)
 		self.withMetadata(meta or {})
@@ -125,7 +144,6 @@ class GenericScene:
 			self.__started__ = True
 			self.firstStart()
 		self.onStart(prev)
-	def onStart(self, prev:int) -> None: pass
 	def firstStart(self) -> None:
 		"""You can use this this instead of onRegister to load stuff on demand
 		rather than everything at register time, so that Scenes never started
@@ -136,20 +154,18 @@ class GenericScene:
 		elif e.type == pygame.KEYDOWN:	return self.onKey(e.key)
 		elif e.type == pygame.MOUSEBUTTONUP:	return self.onMouseUp(e.button, e.pos)
 		elif e.type == pygame.MOUSEBUTTONDOWN:	return self.onMouseDown(e.button, e.pos)
-
 		return self.eventHandler(e)
 	def eventHandler(self, e:pygame.event.Event) -> None:
 		"""Runs once for every single event every tick, so don't do expensive stuff here
-		
 		You should't use it for anything other than checking events really"""
 	def __globalKeyHandler__(self, ks:ScancodeWrapper) -> None:
 		if ks[pygame.K_ESCAPE]: return self.close()
 		return self.keyHandler(ks)
 	def keyHandler(self, ks:ScancodeWrapper) -> None:
-		"runs every tick, ks is list of currently pressed keys"
+		"runs every tick, ks is an array of currently pressed keys"
 	def onKey(self, k:int) -> None: "runs once, when key k is pressed"
-	def onMouseUp(self, k:int, pos:Vector) -> None: pass
-	def onMouseDown(self, k:int, pos:Vector) -> None: pass
+	def onMouseUp(self, k:int, pos:Vector) -> None: "runs once, when button k is released"
+	def onMouseDown(self, k:int, pos:Vector) -> None: "runs once, when button k is pressed"
 	def withMetadata(self, meta:dict[Any,Any]) -> "GenericScene":
 		"""metadata is data needed at the moment, deleted on __globalReset__()
 		For example: Text to draw on a generic dialog bubble Scene
@@ -157,8 +173,7 @@ class GenericScene:
 		if meta: self.metadata.update(meta)
 		return self
 	def __repr__(self) -> str:
-		return f"<Scene '{self.name}'({str(type(self).__name__)}):ID({self.id})>"
-		#I don't need str() here but pyright is complaining
+		return f"<Scene '{self.name}'({type(self).__name__}):ID({self.id})>"
 
 def add_scene(
 	name:str, #required
@@ -184,7 +199,7 @@ def add_scene(
 		f.onRegister()
 		return f
 	return _ret
-addScene = add_scene
+
 
 CLOCK = pygame.time.Clock()
 
@@ -227,8 +242,7 @@ class GenericGame:
 
 	def finisher(self):
 		# this function gets executed at the very end of Game, after all scenes have been
-		# dealt with, don't redeclare it if you don't need to
-		#		mainly for debugging
+		# dealt with
 		pygame.quit()
 	
 	def _prepareWindow(self) -> None:
