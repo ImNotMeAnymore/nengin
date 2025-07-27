@@ -1,6 +1,6 @@
 import nengin.ng as ng
-from nengin.ng import screen
-from nengin import Scene, addScene, Vector
+from nengin.ng import screen, Scene
+from nengin import addScene, Vector
 from pygame import FRect as Rect, K_SPACE
 
 
