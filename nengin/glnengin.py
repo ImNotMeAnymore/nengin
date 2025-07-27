@@ -1,9 +1,9 @@
 
 class GLNenginError(Exception): pass
 if __name__ == "__main__":
-	raise GLNenginError("Run Your own script. Not Nengin!!!!")
+	raise GLNenginError("Run Your own script. Not GlNengin!!!!")
 
-from _generic import (window,GenericScene,GenericGame,Vector,add_scene,addScene,CLOCK)
+from ._generic import (window,GenericScene,GenericGame,Vector,add_scene,addScene,CLOCK)
 import pygame as pg
 from OpenGL.GL import (
 	glClearColor, glClear, GL_COLOR_BUFFER_BIT,glBegin,GL_LINE_LOOP,
