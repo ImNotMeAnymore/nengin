@@ -1,7 +1,7 @@
 from pygame.key import ScancodeWrapper
 import nengin.ng as ng
 from nengin.ng import Scene, screen
-from nengin import addScene, Vector
+from nengin import add_scene, Vector
 from pygame import font, FRect as Rect, K_SPACE
 from pygame._sdl2.video import Texture			# pyright: ignore
 from random import randint
@@ -34,7 +34,7 @@ class GenericTitleSubtitle(Scene):
 		self.titleText.draw(dstrect=self.titleRect)
 		self.subTitle.draw(dstrect=self.subRect)
 
-@addScene("jumper-start", windowSize=SIZE)
+@add_scene("jumper-start", windowSize=SIZE)
 class Start(GenericTitleSubtitle):
 	def firstStart(self):
 		self.metadata["title"] = "Jumper!"
@@ -56,7 +56,7 @@ class Start(GenericTitleSubtitle):
 		screen.draw_line((0,21),(40,21))
 		screen.logical_size = SIZE.xyi
 
-@addScene("jumper-gameover", windowSize=SIZE)
+@add_scene("jumper-gameover", windowSize=SIZE)
 class GameOver(GenericTitleSubtitle):
 	def firstStart(self):
 		self.metadata["title"] = "Game Over!"
@@ -67,7 +67,7 @@ class GameOver(GenericTitleSubtitle):
 	def onKey(self, k:int):
 		if k == K_SPACE: self.changeScene("jumper")
 
-@addScene("jumper", windowSize=SIZE)
+@add_scene("jumper", windowSize=SIZE)
 class JumpGame(Scene):
 	def onStart(self, prev:int):
 		self.pos = 0
