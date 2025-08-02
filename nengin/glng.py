@@ -28,26 +28,28 @@ import moderngl
 import numpy as np
 context = moderngl.create_context()
 
+
+
+
+generic_vertex_shader = """#version 330
+in vec2 in_pos;
+void main() {
+	gl_Position = vec4(in_pos, 0.0, 1.0);
+}"""
+generic_fragment_shader = """#version 330
+uniform vec4 color;
+out vec4 fragColor;
+void main() {
+	fragColor = color;
+}"""
+
 class ScreenWrapper:
 	"implements **some** SDL2 screen(Renderer) methods in openGL, for compat purposes"
-
+	"don't rely too much on it"
 	def __init__(self):
 		self._draw_color = pg.Color(0,0,0)
-		self._prog = context.program(
-			vertex_shader="""
-				#version 330
-				in vec2 in_pos;
-				void main() {
-					gl_Position = vec4(in_pos, 0.0, 1.0);
-				}
-			""",fragment_shader="""
-				#version 330
-				uniform vec4 color;
-				out vec4 fragColor;
-				void main() {
-					fragColor = color;
-				}
-			""")
+		self._prog = context.program(vertex_shader=generic_vertex_shader,
+			fragment_shader=generic_fragment_shader)
 		self._vbo = context.buffer(reserve=8*4*4) # Up to 8 vertices
 		self._vao = context.simple_vertex_array(self._prog,self._vbo,'in_pos')
 	@property
@@ -55,9 +57,7 @@ class ScreenWrapper:
 	@draw_color.setter
 	def draw_color(self, value): self._draw_color = pg.Color(value)
 
-	def clear(self):
-		c = self._draw_color
-		context.clear(c.r/255, c.g/255, c.b/255, c.a/255)
+	def clear(self): context.clear(*self._draw_color.normalized)
 
 	def present(self): window.flip()
 	def to_ndc(self, p): return 2*p[0]/window.size[0]-1,1-2*p[1]/window.size[1]
@@ -82,8 +82,7 @@ class ScreenWrapper:
 	def _draw_shape(self, points, mode):
 		pts = np.array([self.to_ndc(p) for p in points], dtype='f4')
 		self._vbo.write(pts.tobytes())
-		c = self._draw_color
-		self._prog['color'].value = (c.r/255, c.g/255, c.b/255, c.a/255) #type: ignore
+		self._prog['color'].value = self._draw_color.normalized	#type: ignore
 		self._vao.render(mode=mode, vertices=len(points))
 
 screen = ScreenWrapper()
