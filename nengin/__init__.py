@@ -194,7 +194,27 @@ def add_scene(
 	windowPos:int|Vector=pygame.WINDOWPOS_UNDEFINED, #same but don't use a single int for this one
 	windowIcon:pygame.Surface|None=None,
 	) -> Callable[[Type[GenericScene]],GenericScene]:
-	"""TODO: DOCUMENT THIS"""
+	"""Decorator for registering scenes
+	
+	Parameters:
+		name (str): unique Scene name
+		framerate (int, optional): The target framerate for the scene. default is 60
+		windowName (str, optional): Title of window when scene is active
+		windowSize (tuple[int,int]|int|Vector, optional): Window size, accepts anything Vector2 accepts, Default is 704
+		windowPos (int|Vector, optional): the window position, if None it just centers the screen
+		windowIcon (Surface|None, optional): Surface to use as icon, if none it uses pygame's
+
+	Returns:
+		Callable[[Type[GenericScene]],GenericScene]: The true decorator, which then returns an **INSTANCE** of the Scene
+
+	Raises:
+		ValueError: If windowPos is an invalid value.
+
+	Usage:
+		@add_scene("any_name")
+		class MyScene(Scene):
+			...
+	"""
 	name = str(name)
 	if windowIcon: assert isinstance(windowIcon, pygame.Surface)
 	if windowPos not in (pygame.WINDOWPOS_UNDEFINED, pygame.WINDOWPOS_CENTERED):
@@ -249,7 +269,7 @@ class GenericGame:
 		except DoneFlag as e: return print(e)
 		except Exception as e:
 			if self._debug: raise
-			print(e,"!!!!!!!")
+			print(f"{type(e)}: {e} !!!!!")
 		finally: self.finisher()
 
 	def finisher(self):
