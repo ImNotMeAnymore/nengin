@@ -4,17 +4,26 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nengin"
-description = "Object Oriented Wrapper for pygame-ce"
-
+description = "Object Oriented Wrapper for pygame-ce. Scene management, rapid prototyping, and more."
 requires-python = ">=3.12"
 dependencies = ["pygame-ce>=2.5.0"]
 readme = "README.md"
-license = "LGPL-2.1-or-later"
+license = {file = "LICENSE.md"}
 classifiers = [
 	"Framework :: Pygame-ce",
 	"Programming Language :: Python :: 3",
+	"License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)",
+	"Operating System :: OS Independent",
+	"Intended Audience :: Developers",
+	"Topic :: Games/Entertainment",
 ]
 dynamic = ["version"]
+
+[project.optional-dependencies]
+opengl = [
+	"moderngl>=5.8.2",
+	"numpy>=1.24"
+]
 
 [tool.setuptools.dynamic]
 version = {attr = "nengin.__version__"}
