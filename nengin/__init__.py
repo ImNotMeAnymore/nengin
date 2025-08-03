@@ -118,6 +118,7 @@ class GenericScene:
 		self.__byID__[self.id] = self
 		self.__started__:bool = False
 		self.frame_counter:int = 0
+		self.onRegister()
 	def onRegister(self) -> None:
 		"""runs when the scene is being first registered"""
 	def __globalTick__(self) -> None:
@@ -228,7 +229,6 @@ def add_scene(
 		f = SCENES[name] = cls(
 			name, int(framerate), str(windowName), Vector(windowSize), windowPos, windowIcon,
 		)
-		f.onRegister()
 		return f
 	return _ret
 

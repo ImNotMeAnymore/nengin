@@ -1,12 +1,43 @@
 # Nengin API Reference (Core)
 
-This is a concise API reference for the core `nengin` library, focusing on the main classes and usage patterns. For full details, see the source code or extended documentation.
+This is a concise API reference for the core `nengin` library, focusing on the main classes and usage patterns. For full details, see the source code.
+
+---
+
+## Backends and Installation
+
+Nengin supports two rendering backends:
+
+- **SDL2/pygame-ce backend** (default):
+  Use `from nengin.ng import Scene, Game, screen, add_scene`.
+  No extra dependencies required.
+
+- **OpenGL backend** (experimental):
+  Use `from nengin.glng import Scene, Game, screen, addScene`.
+  Requires `moderngl` and `numpy`.
+
+**To install from GitHub:**
+
+- For the default backend:
+  ```bash
+  pip install git+https://github.com/ImNotMeAnymore/nengin
+  ```
+
+- For the OpenGL backend:
+  ```bash
+  pip install git+https://github.com/ImNotMeAnymore/nengin
+  pip install moderngl numpy
+  ```
+
+> **Note:**
+> The default backend (`nengin.ng`) does **not** require OpenGL or its dependencies.
+> Only use `nengin.glng` if you want OpenGL features and have the dependencies installed.
 
 ---
 
 ## Version
 
-- `__version__`: Current version string (e.g., `"0.3.11b"`).
+- `__version__`: Current version string (e.g., `"0.4.5b"`).
 
 ---
 
@@ -16,32 +47,26 @@ This is a concise API reference for the core `nengin` library, focusing on the m
 
 The central class for game logic and scene management. Subclass `Scene` to create your own game screens, menus, or levels.
 
-#### Lifecycle Methods
+#### Scene API
 
-Override these in your subclass as needed:
+All Scene subclasses (for both backends) have the following API:
 
-- `onRegister(self)`: Called once when the scene is registered.
-- `onReset(self, prev: int)`: Called every time the scene starts, before anything else.
-- `onStart(self, prev: int)`: Called when the scene starts (after `onReset`).
-- `firstStart(self)`: Called only the first time the scene is started (for lazy resource loading).
-- `onTick(self)`: Called every frame.
-- `onDraw(self)`: Called every frame, after `onTick`. Draw your scene here.
-- `onEnd(self, next: int)`: Called when the scene ends (before switching to another scene).
-- `onClose(self)`: Called when the game is closing (override for cleanup).
-- `eventHandler(self, e: pygame.event.Event)`: Called for every event not handled by default.
-- `keyHandler(self, ks: ScancodeWrapper)`: Called every frame with the current key state.
-- `onKey(self, k: int)`: Called when a key is pressed.
-- `onMouseUp(self, k: int, pos: Vector)`: Called when a mouse button is released.
-- `onMouseDown(self, k: int, pos: Vector)`: Called when a mouse button is pressed.
-
-#### Scene Switching & Metadata
-
-- `change(self, to: str, metadata: dict = {})`: Switch to another scene by name, passing optional metadata.
-- `close(self)`: Force the game to close immediately.
-- `withMetadata(self, meta: dict)`: Attach metadata to the scene (cleared on reset).
-
-#### Properties
-
+- `onRegister(self) -> None`: Called once when the scene is registered (for lazy resource loading).
+- `onReset(self, prev: int) -> None`: Called every time the scene starts, before anything else.
+- `onStart(self, prev: int) -> None`: Called when the scene starts (after `onReset`).
+- `firstStart(self) -> None`: Called only the first time the scene is started.
+- `onTick(self) -> None`: Called every frame.
+- `onDraw(self) -> None`: Called every frame, after `onTick`. Draw your scene here. (Must be implemented.)
+- `onEnd(self, next: int) -> None`: Called when the scene ends (before switching to another scene).
+- `onClose(self) -> None`: Called when the game is closing (override for cleanup).
+- `eventHandler(self, e: pygame.event.Event) -> None`: Called for every event not handled by default.
+- `keyHandler(self, ks: ScancodeWrapper) -> None`: Called every frame with the current key state.
+- `onKey(self, k: int) -> None`: Called when a key is pressed.
+- `onMouseUp(self, k: int, pos: Vector) -> None`: Called when a mouse button is released.
+- `onMouseDown(self, k: int, pos: Vector) -> None`: Called when a mouse button is pressed.
+- `change(self, to: str, metadata: dict = {}) -> None`: Switch to another scene by name, passing optional metadata.
+- `close(self) -> None`: Force the game to close immediately.
+- `withMetadata(self, meta: dict) -> Scene`: Attach metadata to the scene (cleared on reset).
 - `name`: Scene name (string).
 - `framerate`: Target frames per second (int).
 - `windowName`: Window title (string).
@@ -50,34 +75,6 @@ Override these in your subclass as needed:
 - `windowPos`: Window position (int or `Vector`).
 - `metadata`: Dictionary for passing temporary data between scenes.
 - `frame_counter`: Number of frames since scene started.
-
-#### Class Methods
-
-- `Scene.name_of(id: int) -> str`: Get scene name by ID.
-- `Scene.id_of(name: str) -> int`: Get scene ID by name.
-
-#### Example Usage
-
-```python
-from nengin import Scene, add_scene
-
-@add_scene("MainMenu", framerate=60, windowSize=(800, 600))
-class MainMenu(Scene):
-    def onStart(self, prev):
-        print("Main menu started!")
-    def onDraw(self):
-        # draw menu here
-        pass
-    def onKey(self, k):
-        if k == pygame.K_RETURN:
-            self.change("GameScene")
-```
-
----
-
-### StaticScene
-
-WIP
 
 ---
 
@@ -92,17 +89,9 @@ Handles the main loop and scene switching.
 
 ### Utility Classes & Functions
 
-- `Vector`: Alias for `pygame.Vector2`, with `.xyi` property for integer coordinates.
 - `add_scene(...)`: Decorator to register a scene class.
 - `window`: The main window object.
 - `screen`: The renderer object.
-
----
-
-### Error Handling
-
-- `GenericNenginError`: Base exception for Nengin errors.
-- `DoneFlag`: Raised internally to signal game closure.
 
 ---
 
