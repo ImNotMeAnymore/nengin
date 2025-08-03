@@ -16,18 +16,22 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-__version__ = "0.4.4b"
+__version__ = "0.4.5b"
 # 1.0.0 when I have some docs
 
-class GenericNenginError(Exception): pass
+class GenericNenginError(Exception):
+	"""Generic Exception"""
+
 if __name__ == "__main__":
 	raise GenericNenginError("Run Your own script. Not Nengin(nor this file)!!!!")
 
 import pygame
 #print("nengin", __version__)
 from pygame.key import ScancodeWrapper
-from pygame import Vector2 as _vector, Window as _window
+from pygame import Vector2 as _vector
 from typing import Callable, Type, Any
+from abc import abstractmethod
+
 
 """
 # In case I need it, no sense to activate it when there are no warnings
@@ -35,16 +39,21 @@ from typing import Callable, Type, Any
 # TODO: actually use this, what's the point of having it if I don't
 import warnings
 
-def deprecated_alias(new:str):
-	def dec(f):
-		def wr(__fn=f,__nn=new *a, **k):
-			warnings.warn(f"{__fn.__name__} is deprecated, use {__nn} instead.",DeprecationWarning,stacklevel=2)
-			return __fn(*a, **k)
-		return wr
+from typing import TypeVar, cast
+
+F = TypeVar("F", bound=Callable[..., Any])
+
+def deprecated_alias(new: str) -> Callable[[F], F]:
+	def dec(f: F) -> F:
+		def wr(*a: Any, **k: Any) -> Any:
+			warnings.warn(f"{f.__name__} is deprecated, use {new} instead.", DeprecationWarning, stacklevel=2)
+			return f(*a, **k)
+		return cast(F, wr)
 	return dec
 " """
 
-class _ContextClass(dict[str,"GenericScene"]):
+class ContextClass(dict[str,"GenericScene"]):
+	"""dict that errors when no such scene exists"""
 	def __getitem__(self, k:str) -> "GenericScene":
 		try: return super().__getitem__(k)
 		except KeyError: pass
@@ -52,17 +61,18 @@ class _ContextClass(dict[str,"GenericScene"]):
 		s = "\n	· ".join(super().keys())
 		raise GenericNenginError(f"Scene {k} not found, registered scenes are:\n	· {s}")
 
-SCENES = _ContextClass()
-
 class Vector(_vector):
+	"""pygame's Vector, but with xyi method, should be in pygame itself imo"""
 	@property
 	def xyi(self) -> tuple[int,int]: return int(self.x),int(self.y)
-class DoneFlag(Exception): pass
 
-def createScreen():
-	raise GenericNenginError("You shouldn't call _generic.py directly")
+class DoneFlag(Exception):
+	"""This flag indicates the game was closed gracefully, could change"""
 
-window = _window(title="Loading...", size=(1,1), hidden=True, opengl=True)
+SCENES:ContextClass = ContextClass()
+CLOCK:pygame.time.Clock = pygame.time.Clock()
+window:pygame.Window = pygame.Window(title="Loading...", size=(1,1), hidden=True, opengl=True)
+
 
 class GenericScene:
 	__byID__:dict[int,"GenericScene"] = {}
@@ -81,12 +91,12 @@ class GenericScene:
 	def change(self, to:str, metadata:dict[Any,Any]|None=None) -> None:
 		return self.__game__.change_scene(to, metadata or {})
 	changeScene = change
-	def onClose(self):
+	def onClose(self) -> None:
 		"""This should not iterfere with normal closing (as in, raising another error,
 		or cancel the close conditionally), change .close() directly for that"""
 		window.hide()
 	def close(self) -> None:
-		"forces the game to close, ignores onEnd(), but calls onClose()"
+		"""forces the game to close, ignores onEnd(), but calls onClose()"""
 		self.onClose()
 		raise DoneFlag(f"{self} Closed the Game")
 	quit = close #I'm tired of forgetting it's name
@@ -109,29 +119,30 @@ class GenericScene:
 		self.__started__:bool = False
 		self.frame_counter:int = 0
 	def onRegister(self) -> None:
-		"runs when the scene is being first registered"
+		"""runs when the scene is being first registered"""
 	def __globalTick__(self) -> None:
 		self.onTick()
 		self.frame_counter += 1
 	def onTick(self) -> None:
-		"runs every frame"
+		"""runs every frame"""
 	def __globalDraw__(self) -> None:
 		self.onDraw()
 		window.flip()
-	def onDraw(self) -> None:
-		raise GenericNenginError("You shouldn't call _generic.py directly")
-		"last thing that runs every frame"
+
+	@abstractmethod
+	def onDraw(self) -> None: pass
+
 	def __globalReset__(self, prev:int) -> None:
 		#self.eat("bugs")
 		self.onReset(prev)
 		self.metadata.clear()
 	def __globalOnEnd__(self, next:int) -> None: self.onEnd(next)
 	def onEnd(self, next:int) -> None:
-		"run before the next scene starts"
+		"""run before the next scene starts"""
 	def onReset(self, prev:int) -> None:
-		"very first thing to run every time scene is started"
+		"""very first thing to run every time scene is started"""
 	def onStart(self, prev:int) -> None:
-		"very last thing to run every time scene is started"
+		"""very last thing to run every time scene is started"""
 
 	def __globalOnStart__(self, prev:int, meta:dict[Any,Any]|None=None) -> None:
 		self.__globalReset__(prev)
@@ -162,10 +173,10 @@ class GenericScene:
 		if ks[pygame.K_ESCAPE]: return self.close()
 		return self.keyHandler(ks)
 	def keyHandler(self, ks:ScancodeWrapper) -> None:
-		"runs every tick, ks is an array of currently pressed keys"
-	def onKey(self, k:int) -> None: "runs once, when key k is pressed"
-	def onMouseUp(self, k:int, pos:Vector) -> None: "runs once, when button k is released"
-	def onMouseDown(self, k:int, pos:Vector) -> None: "runs once, when button k is pressed"
+		"""runs every tick, ks is an array of currently pressed keys"""
+	def onKey(self, k:int) -> None: """runs once, when key k is pressed"""
+	def onMouseUp(self, k:int, pos:Vector) -> None: """runs once, when button k is released"""
+	def onMouseDown(self, k:int, pos:Vector) -> None: """runs once, when button k is pressed"""
 	def withMetadata(self, meta:dict[Any,Any]) -> "GenericScene":
 		"""metadata is data needed at the moment, deleted on __globalReset__()
 		For example: Text to draw on a generic dialog bubble Scene
@@ -183,6 +194,7 @@ def add_scene(
 	windowPos:int|Vector=pygame.WINDOWPOS_UNDEFINED, #same but don't use a single int for this one
 	windowIcon:pygame.Surface|None=None,
 	) -> Callable[[Type[GenericScene]],GenericScene]:
+	"""TODO: DOCUMENT THIS"""
 	name = str(name)
 	if windowIcon: assert isinstance(windowIcon, pygame.Surface)
 	if windowPos not in (pygame.WINDOWPOS_UNDEFINED, pygame.WINDOWPOS_CENTERED):
@@ -190,7 +202,7 @@ def add_scene(
 			raise ValueError("Use a smaller window position or pass windowPos as a tuple")
 		else: windowPos = Vector(windowPos)
 	def _ret(cls:Type[GenericScene]) -> GenericScene:
-		nonlocal name, framerate, windowName, windowSize, windowPos, windowIcon
+		#nonlocal name, framerate, windowName, windowSize, windowPos, windowIcon
 		x,y = Vector(windowSize).xyi
 		print(f"Registering: '{name}' [{x} x {y}] (ID:{GenericScene.__current_ID__-1})")
 		f = SCENES[name] = cls(
@@ -200,15 +212,15 @@ def add_scene(
 		return f
 	return _ret
 
-
-CLOCK = pygame.time.Clock()
-
-
 class GenericGame:
 	@property
-	def _debug(self): return self.__global_debug or self.scene._debug
+	def _debug(self):
+		"""If debug flag is up, globally or by the scene itself"""
+		return self.__global_debug or self.scene._debug
 	global_tick = 0
 	def run(self) -> None:
+		"""Runs the game"""
+		window.show()
 		try:
 			while True:
 				while self.__changingStack:
@@ -228,7 +240,7 @@ class GenericGame:
 				events = pygame.event.get()
 				for e in events:
 					if e.__dict__.get("window") not in (window,None):
-						raise GenericNenginError("Multiple windows are not supported (yet)")
+						raise GenericNenginError("Multiple windows are not supported!")
 					self.scene.__globalEventHandler__(e)
 				self.scene.__globalKeyHandler__(pygame.key.get_pressed())
 				self.global_tick += 1
@@ -241,14 +253,14 @@ class GenericGame:
 		finally: self.finisher()
 
 	def finisher(self):
-		# this function gets executed at the very end of Game, after all scenes have been
-		# dealt with
+		"""this function gets executed at the very end of Game, after all scenes have been dealt with"""
 		pygame.quit()
 	
+	@abstractmethod
 	def _prepareWindow(self) -> None:
-		raise GenericNenginError("You shouldn't call _generic.py directly")
+		"""You shouldn't call nengin's Generics directly"""
 
-	def __init__(self, starter:str, metadata:dict[Any,Any]|None=None, _debug:bool=False):
+	def __init__(self, starter:str, metadata:dict[Any,Any]|None=None, run:bool=True, _debug:bool=False):
 		self.__global_debug = _debug
 		global window
 		for v in SCENES.values(): v.__game__ = self
@@ -261,8 +273,7 @@ class GenericGame:
 		#window.flip() #workaround to make an empty non-ticking scene
 		if (h.windowPos == pygame.WINDOWPOS_UNDEFINED):
 			window.position = pygame.WINDOWPOS_CENTERED
-		window.show()
-		return self.run()
+		if run: return self.run()
 
 	__changingStack:dict[str,dict[Any,Any]] = {}
 	def change_scene(self, to:str, metadata:dict[Any,Any]|None=None) -> None:

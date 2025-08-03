@@ -17,8 +17,7 @@
 # <https://www.gnu.org/licenses/>.
 
 class GLNenginError(Exception): pass
-if __name__ == "__main__":
-	raise GLNenginError("Run Your own script. Not GlNengin!!!!")
+if __name__ == "__main__": raise GLNenginError("Run Your own script. Not GlNengin!!!!")
 
 from . import (window,GenericScene,GenericGame,add_scene)
 import pygame as pg
@@ -26,9 +25,7 @@ import pygame as pg
 addScene = add_scene
 import moderngl
 import numpy as np
-context = moderngl.create_context()
-
-
+context:moderngl.Context = moderngl.create_context()
 
 
 generic_vertex_shader = """#version 330
@@ -44,8 +41,9 @@ void main() {
 }"""
 
 class ScreenWrapper:
-	"implements **some** SDL2 screen(Renderer) methods in openGL, for compat purposes"
-	"don't rely too much on it"
+	"""implements **some** SDL2 screen(Renderer) methods in openGL, for compat purposes
+	
+	don't rely too much on it"""
 	def __init__(self):
 		self._draw_color = pg.Color(0,0,0)
 		self._prog = context.program(vertex_shader=generic_vertex_shader,
@@ -89,7 +87,7 @@ screen = ScreenWrapper()
 
 class Scene(GenericScene):
 	def onDraw(self) -> None:
-		"last thing that runs every frame"
+		"""last thing that runs every frame"""
 		context.clear(32/255, 36/255, 32/255, 1.0)
 
 class Game(GenericGame):

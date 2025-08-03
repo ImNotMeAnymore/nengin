@@ -30,7 +30,7 @@ screen:_renderer = _renderer(window)
 
 class Scene(GenericScene):
 	def onDraw(self) -> None:
-		"last thing that runs every frame"
+		"""last thing that runs every frame"""
 		screen.draw_color = 32,36,32
 		screen.clear()
 	def __globalDraw__(self) -> None:
