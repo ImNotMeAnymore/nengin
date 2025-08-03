@@ -20,11 +20,9 @@ class NenginError(Exception): pass
 
 if __name__ == "__main__": raise NenginError("Run Your own script. Not Nengin!!!")
 
-from . import (
-	window,GenericScene,GenericGame,add_scene
-)
+from . import (window,GenericScene,GenericGame,add_scene,CLOCK)
 from pygame._sdl2.video import Renderer as _renderer
-addScene = add_scene
+#addScene = add_scene
 
 screen:_renderer = _renderer(window)
 

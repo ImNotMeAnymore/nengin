@@ -19,10 +19,9 @@
 class GLNenginError(Exception): pass
 if __name__ == "__main__": raise GLNenginError("Run Your own script. Not GlNengin!!!!")
 
-from . import (window,GenericScene,GenericGame,add_scene)
+from . import (window,GenericScene,GenericGame,add_scene,CLOCK)
 import pygame as pg
-
-addScene = add_scene
+#addScene = add_scene
 import moderngl
 import numpy as np
 context:moderngl.Context = moderngl.create_context()
