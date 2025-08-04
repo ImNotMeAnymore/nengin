@@ -89,7 +89,7 @@ See `nengin/nengin/examples/` for more:
 
 ## Error Handling
 
-- `GenericNenginError` (ng) and `GLNenginError` (glng): Base exceptions for engine errors.
+- `NenginError` (ng) and `GLNenginError` (glng): Base exceptions for engine errors.
 - `DoneFlag`: Raised internally to signal game closure.
 
 ---
