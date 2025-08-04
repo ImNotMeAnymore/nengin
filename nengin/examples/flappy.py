@@ -1,5 +1,6 @@
-import nengin as ng
-from nengin import Scene, addScene, screen, Vector
+import nengin.ng as ng
+from nengin.ng import screen, Scene
+from nengin import add_scene, Vector
 from pygame import FRect as Rect, K_SPACE
 
 
@@ -7,14 +8,14 @@ from pygame import FRect as Rect, K_SPACE
 X,Y = SIZE = Vector(1,2)*45*8
 VIEW = Rect(0,0,X,Y)
 
-@addScene("flappy-menu", windowSize=SIZE)
+@add_scene("flappy-over", windowSize=SIZE)
 class FlappyMenu(Scene):
 	def onStart(self, prev: int) -> None:
 		self.pos = Vector(X//5,Y//3)
 		self.rect = Rect(0,0,30,30)
 		self.rect.center = self.pos
 
-@addScene("flappy-menu", windowSize=SIZE)
+@add_scene("flappy-menu", windowSize=SIZE)
 class FlappyGameOver(Scene):
 	def onStart(self, prev: int) -> None:
 		self.pos = Vector(X//5,Y//3)
@@ -22,7 +23,7 @@ class FlappyGameOver(Scene):
 		self.rect.center = self.pos
 	
 
-@addScene("flappy-game", windowSize=SIZE)
+@add_scene("flappy-game", windowSize=SIZE)
 class FlappyGame(Scene):
 	def onStart(self, prev: int) -> None:
 		self.momentum = Vector(0,-3)

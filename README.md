@@ -1,58 +1,99 @@
 # This is nengin
 
-Nengin is a small utility for [pygame-ce](https://github.com/pygame-community/pygame-ce), designed to make it easy to develop games with multiple independent scenes (such as GUIs, menus, and gameplay loops) in an object-oriented and consistent way.
+Nengin is a small, object-oriented utility for [pygame-ce](https://github.com/pygame-community/pygame-ce), designed to make it easy to develop games with multiple independent scenes (such as GUIs, menus, and gameplay loops) in a consistent.
 
-**Features:**
-- Simple scene registration and switching
-- Clean separation of game logic per scene
-- Minimal boilerplate for rapid prototyping
+---
+
+## Overview
+
+Nengin provides a simple, robust scene management system for games and interactive applications.  
+**You always import from the backend you want:**
+- `nengin.ng` for classic 2D games (SDL2/pygame-ce)
+- `nengin.glng` for OpenGL rendering (experimental)
 
 ---
 
 ## Installation
 
-**Requirements:**  
-- Python 3.12+
-- [pygame-ce](https://github.com/pygame-community/pygame-ce)
+### Requirements
 
-Install with:
+- Python 3.12+
+- [pygame-ce](https://github.com/pygame-community/pygame-ce) >= 2.5.0
+- (Optional for OpenGL backend) [moderngl](https://github.com/moderngl/moderngl), [numpy](https://numpy.org/)
+
+### Install for SDL2/pygame-ce backend (ng)
+
 ```bash
 pip install git+https://github.com/ImNotMeAnymore/nengin
 ```
 
-You can test it's installed and working with:
+### Install for OpenGL backend (glng)
+
 ```bash
-python -m nengin.examples.pong
+pip install git+https://github.com/ImNotMeAnymore/nengin
+pip install moderngl numpy
 ```
 
 ---
 
-## How to use
+## Choosing a Backend
+
+- Use **ng** (`nengin.ng`) for most 2D games and rapid prototyping. No OpenGL or extra dependencies required.
+- Use **glng** (`nengin.glng`) for experimental OpenGL rendering. Requires `moderngl` and `numpy`.
+
+---
+
+## Quickstart
+
+#### Using SDL2/pygame-ce backend
+
 ```python
-import nengin as ng
-import pygame as pg
-
-@ng.addScene(
-	name = "YourGameScene",          # REQUIRED: the name of the scene
-	framerate = 60,                  # Target FPS (default: 60)
-	windowName = "Made with Nengin!",# Window title
-	windowSize = 704,                # Anything pygame.Vector2() accepts
-)
-class CustomGameScene(ng.Scene):
-	color = [255,0,0]
-	def onDraw(self) -> None:
-		ng.screen.draw_color = 0,0,0,0
-		ng.screen.clear()
-		ng.screen.draw_color = self.color
-		ng.screen.draw_triangle((100,500),(500,100),(650,650))
-	def onKey(self, k):
-		if k == pg.K_SPACE:
-			self.color.append(self.color.pop(0))
-
-# Start the game with:
-ng.Game("YourGameScene")
+from nengin.ng import Scene,Game,screen,add_scene
 ```
 
+#### Using OpenGL backend
 
+```python
+from nengin.glng import Scene,Game,screen,add_scene
+```
 
+Then
 
+```python
+@add_scene("example")
+class MyScene(Scene):
+	def onDraw(self):
+		screen.draw_color = (29, 29, 29)
+		screen.clear()
+		screen.draw_color = (0, 255, 0)
+		screen.draw_triangle((100,100), (200,100), (150,200))
+
+Game("example")
+```
+
+---
+
+## API Reference
+
+See [docs/index.md](nengin/nengin/docs/index.md) for a full API reference.
+
+---
+
+## Examples
+
+See `nengin/nengin/examples/` for more:
+- `pong.py` – Classic Pong clone
+- `jumper.py` – Jumping dinosaur clone
+
+---
+
+## Error Handling
+
+- `GenericNenginError` (ng) and `GLNenginError` (glng): Base exceptions for engine errors.
+- `DoneFlag`: Raised internally to signal game closure.
+
+---
+
+## License
+
+LGPL-2.1-or-later (see LICENSE.md)
