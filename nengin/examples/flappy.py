@@ -8,7 +8,7 @@ from pygame import FRect as Rect, K_SPACE
 X,Y = SIZE = Vector(1,2)*45*8
 VIEW = Rect(0,0,X,Y)
 
-@add_scene("flappy-menu", windowSize=SIZE)
+@add_scene("flappy-over", windowSize=SIZE)
 class FlappyMenu(Scene):
 	def onStart(self, prev: int) -> None:
 		self.pos = Vector(X//5,Y//3)

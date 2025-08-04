@@ -84,8 +84,8 @@ class GenericScene:
 	def id_of(cls, name:str) -> int: return SCENES[name].id
 	idOf = id_of
 	nameOf = name_of
-	def __init_subclass__(cls, *, _debug:bool=False) -> None:
-		cls._debug:bool = _debug
+	def __init_subclass__(cls, *, debug:bool=False) -> None:
+		cls._debug:bool = debug
 		cls.id:int = cls.__current_ID__
 		GenericScene.__current_ID__ += 1
 	def change(self, to:str, metadata:dict[Any,Any]|None=None) -> None:

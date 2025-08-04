@@ -17,10 +17,13 @@ def loadText(text:str, f:font.Font) -> Texture:
 
 @add_scene("pong-end", windowSize=SIZE)
 class GameOver(Scene):
-	def firstStart(self):
+	def onRegister(self):
 		font.init()
 		self.gameOverText = loadText("Game Over!", font.SysFont(("comicsans","ubuntu","sans"), round(Y/4)))
 		self.gameOverRect = self.gameOverText.get_rect()
+		pass
+
+	def firstStart(self):
 		self.gameOverRect.center = VIEW.center
 		self.gameOverRect.y -= Y/5
 		f = font.SysFont(("comicsans","ubuntu","sans"), round(Y/15))
