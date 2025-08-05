@@ -16,7 +16,7 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-__version__ = "0.4.5b"
+__version__ = "0.4.6b"
 # 1.0.0 when I have some docs
 
 class GenericNenginError(Exception):
@@ -78,6 +78,8 @@ class GenericScene:
 	__byID__:dict[int,"GenericScene"] = {}
 	__current_ID__:int = 0
 	__game__:"GenericGame"
+	@property
+	def dt(self): return self.__game__.dt	
 	@classmethod
 	def name_of(cls, id:int) -> str: return cls.__byID__[id].name
 	@classmethod
@@ -238,6 +240,8 @@ class GenericGame:
 		"""If debug flag is up, globally or by the scene itself"""
 		return self.__global_debug or self.scene._debug
 	global_tick = 0
+	dt = 0
+	
 	def run(self) -> None:
 		"""Runs the game"""
 		window.show()
@@ -256,7 +260,7 @@ class GenericGame:
 					self.scene.__globalOnEnd__(new.id)
 					new.__globalOnStart__(self.scene.id, meta=meta)
 					self.scene = new
-				CLOCK.tick(self.scene.framerate)
+				self.dt = CLOCK.tick(self.scene.framerate)
 				events = pygame.event.get()
 				for e in events:
 					if e.__dict__.get("window") not in (window,None):
