@@ -17,12 +17,17 @@
 # <https://www.gnu.org/licenses/>.
 
 class NenginError(Exception): pass
-
 if __name__ == "__main__": raise NenginError("Run Your own script. Not Nengin!!!")
 
 from . import (window,GenericScene,GenericGame,add_scene,CLOCK)
+
+if GenericGame.__backend__:
+	raise NenginError(f"Imported ng when backend '{GenericGame.__backend__}' was already"\
+		"imported, choose one and one only!")
+GenericGame.__backend__ = "ng"
+
+
 from pygame._sdl2.video import Renderer as _renderer
-#addScene = add_scene
 
 screen:_renderer = _renderer(window)
 
