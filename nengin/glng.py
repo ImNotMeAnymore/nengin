@@ -19,7 +19,8 @@
 class GLNenginError(Exception): pass
 if __name__ == "__main__": raise GLNenginError("Run Your own script. Not GlNengin!!!!")
 
-from . import (window,GenericScene,GenericGame,add_scene,CLOCK)
+from typing import Any
+from . import (windowArgs,GenericScene,GenericGame,add_scene,CLOCK)
 
 if GenericGame.__backend__:
 	raise GLNenginError(f"Imported glng when backend '{GenericGame.__backend__}' was already"\
@@ -27,10 +28,15 @@ if GenericGame.__backend__:
 GenericGame.__backend__ = "glng"
 
 
+
+
+
 import pygame as pg
 import moderngl
 import numpy as np
 
+
+window:pg.Window = pg.Window(**windowArgs)
 context:moderngl.Context = moderngl.create_context()
 
 
@@ -94,4 +100,6 @@ class Scene(GenericScene):
 		context.clear(0.12549, 0.14118, 0.12549, 1.0)
 
 class Game(GenericGame):
+	def __init__(self, starter: str, metadata: dict[Any, Any] | None = None, run: bool = True, _debug: bool = False):
+		super().__init__(starter, window, metadata, run, _debug)
 	def _prepareWindow(self) -> None: context.clear(0,0,0,1.0)

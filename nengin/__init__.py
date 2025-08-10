@@ -32,6 +32,7 @@ from pygame import Vector2 as _vector
 from typing import Callable, Type, Any
 from abc import abstractmethod
 
+
 """
 # In case I need it, no sense to activate it when there are no warnings
 # to activate it simply comment out the first triple "
@@ -70,8 +71,31 @@ class DoneFlag(Exception):
 
 SCENES:ContextClass = ContextClass()
 CLOCK:pygame.time.Clock = pygame.time.Clock()
-window:pygame.Window = pygame.Window(title="Loading...", size=(1,1), hidden=True, opengl=True)
 
+windowArgs:dict["str",Any] = {
+	"title":"Loading...",		# (str) -- The title of the window.
+	"size":(1,1),					# ((int, int)) -- The size of the window, in screen coordinates.
+	"position":pygame.WINDOWPOS_UNDEFINED,# ((int, int) or int) -- A tuple specifying the window position, or WINDOWPOS_CENTERED, or WINDOWPOS_UNDEFINED.
+	"fullscreen":False,			# (bool) -- Create a fullscreen window using the window size as the resolution (videomode change).
+	"fullscreen_desktop":False,# (bool) -- Create a fullscreen window using the current desktop resolution.
+	"opengl":True,					# (bool) -- Create a window with support for an OpenGL context.
+	"vulkan":False,					# (bool) -- Create a window with support for a Vulkan instance.
+	"hidden":True,					# (bool) -- Create a hidden window.
+	"borderless":False,			# (bool) -- Create a window without borders.
+	"resizable":False,			# (bool) -- Create a resizable window.
+	"minimized":False,			# (bool) -- Create a mimized window.
+	"maximized":False,			# (bool) -- Create a maximized window.
+	"mouse_grabbed":False,		# (bool) -- Create a window with grabbed mouse input.
+	"keyboard_grabbed":False,	# (bool) -- Create a window with grabbed keyboard input.
+	"input_focus":True,			# (bool) -- Create a window with input focus.
+	"mouse_focus":True,			# (bool) -- Create a window with mouse focus.
+	"allow_high_dpi":True,		# (bool) -- Create a window in high-DPI mode if supported.
+	"mouse_capture":False,		# (bool) -- Create a window that has the mouse captured (unrelated to INPUT_GRABBED).
+	"always_on_top":False,		# (bool) -- Create a window that is always presented above others.
+	"utility":False,				# (bool) -- Create a window that doesn't appear in the task bar.
+}
+
+#window:pygame.Window
 
 class GenericScene:
 	__byID__:dict[int,"GenericScene"] = {}
@@ -95,7 +119,7 @@ class GenericScene:
 	def onClose(self) -> None:
 		"""This should not iterfere with normal closing (as in, raising another error,
 		or cancel the close conditionally), change .close() directly for that"""
-		window.hide()
+		self.__game__.window.hide()
 	def close(self) -> None:
 		"""forces the game to close, ignores onEnd(), but calls onClose()"""
 		self.onClose()
@@ -129,7 +153,7 @@ class GenericScene:
 		"""runs every frame"""
 	def __globalDraw__(self) -> None:
 		self.onDraw()
-		window.flip()
+		self.__game__.window.flip()
 
 	@abstractmethod
 	def onDraw(self) -> None: pass
@@ -147,6 +171,7 @@ class GenericScene:
 		"""very last thing to run every time scene is started"""
 
 	def __globalOnStart__(self, prev:int, meta:dict[Any,Any]|None=None) -> None:
+		window:pygame.Window = self.__game__.window
 		self.__globalReset__(prev)
 		self.withMetadata(meta or {})
 		window.title = self.windowName
@@ -245,7 +270,7 @@ class GenericGame:
 	
 	def run(self) -> None:
 		"""Runs the game"""
-		window.show()
+		self.window.show()
 		try:
 			while True:
 				while self.__changingStack:
@@ -264,7 +289,7 @@ class GenericGame:
 				self.dt = CLOCK.tick(self.scene.framerate)
 				events = pygame.event.get()
 				for e in events:
-					if e.__dict__.get("window") not in (window,None):
+					if e.__dict__.get("window") not in (self.window,None):
 						raise GenericNenginError("Multiple windows are not supported!")
 					self.scene.__globalEventHandler__(e)
 				self.scene.__globalKeyHandler__(pygame.key.get_pressed())
@@ -285,9 +310,9 @@ class GenericGame:
 	def _prepareWindow(self) -> None:
 		"""You shouldn't call nengin's Generics directly"""
 
-	def __init__(self, starter:str, metadata:dict[Any,Any]|None=None, run:bool=True, _debug:bool=False):
+	def __init__(self, starter:str, window:pygame.Window, metadata:dict[Any,Any]|None=None, run:bool=True, _debug:bool=False):
+		self.window:pygame.Window = window
 		self.__global_debug = _debug
-		global window
 		for v in SCENES.values(): v.__game__ = self
 		self.scene:GenericScene
 		self.cur:str
