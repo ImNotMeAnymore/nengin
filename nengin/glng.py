@@ -20,10 +20,17 @@ class GLNenginError(Exception): pass
 if __name__ == "__main__": raise GLNenginError("Run Your own script. Not GlNengin!!!!")
 
 from . import (window,GenericScene,GenericGame,add_scene,CLOCK)
+
+if GenericGame.__backend__:
+	raise GLNenginError(f"Imported glng when backend '{GenericGame.__backend__}' was already"\
+		"imported, choose one and one only!")
+GenericGame.__backend__ = "glng"
+
+
 import pygame as pg
-#addScene = add_scene
 import moderngl
 import numpy as np
+
 context:moderngl.Context = moderngl.create_context()
 
 
@@ -61,7 +68,6 @@ class ScreenWrapper:
 
 	def draw_line(self, p1, p2): self._draw_shape((p1,p2), moderngl.LINES)
 	def draw_point(self, point): self._draw_shape([point], moderngl.POINTS)
-
 	def draw_rect(self, rect):
 		x, y, w, h = rect
 		self._draw_shape(((x,y),(x+w,y),(x+w,y+h),(x,y+h)), moderngl.LINE_LOOP)
@@ -69,10 +75,8 @@ class ScreenWrapper:
 		x, y, w, h = rect
 		a,b,c,d = (x, y),(x+w,y),(x+w,y+h),(x,y+h)
 		self._draw_shape((a,b,c,c,d,a), moderngl.TRIANGLES)
-
 	def draw_triangle(self, p1, p2, p3): self._draw_shape((p1,p2,p3), moderngl.LINE_LOOP)
 	def fill_triangle(self, p1, p2, p3): self._draw_shape((p1,p2,p3), moderngl.TRIANGLES)
-		
 	def draw_quad(self, p1, p2, p3, p4): self._draw_shape([p1, p2, p3, p4], moderngl.LINE_LOOP)
 	def fill_quad(self, p1, p2, p3, p4): self._draw_shape([p1, p2, p3, p3, p4, p1], moderngl.TRIANGLES)
 
@@ -87,7 +91,7 @@ screen = ScreenWrapper()
 class Scene(GenericScene):
 	def onDraw(self) -> None:
 		"""last thing that runs every frame"""
-		context.clear(32/255, 36/255, 32/255, 1.0)
+		context.clear(0.12549, 0.14118, 0.12549, 1.0)
 
 class Game(GenericGame):
 	def _prepareWindow(self) -> None: context.clear(0,0,0,1.0)

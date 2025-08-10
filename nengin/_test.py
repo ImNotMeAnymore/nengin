@@ -6,6 +6,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 #shenanigans to run the script from the IDE
 
 import nengin.glng as ng
+#import nengin.ng as ng
+
 import pygame as pg
 
 @ng.add_scene("TestScene",60,"Made with Nengin!",704)

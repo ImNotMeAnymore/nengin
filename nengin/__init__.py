@@ -32,7 +32,6 @@ from pygame import Vector2 as _vector
 from typing import Callable, Type, Any
 from abc import abstractmethod
 
-
 """
 # In case I need it, no sense to activate it when there are no warnings
 # to activate it simply comment out the first triple "
@@ -235,6 +234,8 @@ def add_scene(
 	return _ret
 
 class GenericGame:
+	__backend__:None|str = None
+	
 	@property
 	def _debug(self):
 		"""If debug flag is up, globally or by the scene itself"""
