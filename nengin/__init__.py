@@ -79,7 +79,7 @@ windowArgs:dict["str",Any] = { #there's probably a better way of doing this
 														# or WINDOWPOS_CENTERED, or WINDOWPOS_UNDEFINED
 	"fullscreen":False,		# (bool) Create a fullscreen window using size as the resolution, videomode change
 	"fullscreen_desktop":False,# (bool) Create a fullscreen window using the current desktop resolution
-	"opengl":False,			# (bool) Create a window with support for an OpenGL context
+	"opengl":True,			# (bool) Create a window with support for an OpenGL context
 	"vulkan":False,			# (bool) Create a window with support for a Vulkan instance
 	"hidden":True,				# (bool) Create a hidden window
 	"borderless":False,		# (bool) Create a window without borders
@@ -157,7 +157,8 @@ class GenericScene:
 		self.__game__.window.flip()
 
 	@abstractmethod
-	def onDraw(self) -> None: pass
+	def onDraw(self) -> None:
+		"""last thing that runs every frame"""
 
 	def __globalReset__(self, prev:int) -> None:
 		#self.eat("bugs")
@@ -218,8 +219,8 @@ def add_scene(
 	name:str, #required
 	framerate:int=60,
 	windowName:str="Made with Nengin!",
-	windowSize:tuple[int,int]|int|Vector=704, #anything pygame.Vector2() accepts will do
-	windowPos:int|Vector=pygame.WINDOWPOS_UNDEFINED, #same but don't use a single int for this one
+	windowSize:tuple[int,int]|int|_vector=704, #anything pygame.Vector2() accepts will do
+	windowPos:int|_vector=pygame.WINDOWPOS_UNDEFINED, #same but don't use a single int for this one
 	windowIcon:pygame.Surface|None=None,
 	) -> Callable[[Type[GenericScene]],GenericScene]:
 	"""Decorator for registering scenes
@@ -248,14 +249,12 @@ def add_scene(
 	if windowPos not in (pygame.WINDOWPOS_UNDEFINED, pygame.WINDOWPOS_CENTERED):
 		if isinstance(windowPos, int) and windowPos > 32768:
 			raise ValueError("Use a smaller window position or pass windowPos as a tuple")
-		else: windowPos = Vector(windowPos)
 	def _ret(cls:Type[GenericScene]) -> GenericScene:
 		#nonlocal name, framerate, windowName, windowSize, windowPos, windowIcon
 		x,y = Vector(windowSize).xyi
 		print(f"Registering: '{name}' [{x} x {y}] (ID:{GenericScene.__current_ID__-1})")
-		f = SCENES[name] = cls(
-			name, int(framerate), str(windowName), Vector(windowSize), windowPos, windowIcon,
-		)
+		f = SCENES[name] = cls(name, int(framerate), str(windowName),
+					Vector(windowSize), Vector(windowPos), windowIcon)
 		return f
 	return _ret
 
@@ -309,7 +308,7 @@ class GenericGame:
 	
 	@abstractmethod
 	def _prepareWindow(self) -> None:
-		"""You shouldn't call nengin's Generics directly"""
+		"""clears the screen from random noise and other garbage before it's first shown"""
 
 	def __init__(self,
 					starter:str,
