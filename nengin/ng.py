@@ -16,22 +16,21 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-class NenginError(Exception): pass
+from . import (GenericGame,GenericNenginError)
+class NenginError(GenericNenginError): pass
 if __name__ == "__main__": raise NenginError("Run Your own script. Not Nengin!!!")
-
-from typing import Any
-from . import (windowArgs,GenericScene,GenericGame,add_scene,CLOCK)
-
-if GenericGame.__backend__:
-	raise NenginError(f"Imported ng when backend '{GenericGame.__backend__}' was already"\
-		"imported, choose one and one only!")
+if GenericGame.__backend__: raise NenginError("Imported ng when backend '"\
+	f"{GenericGame.__backend__}' was already imported, choose one and one only!")
 GenericGame.__backend__ = "ng"
 
+
+from . import (windowArgs,GenericScene,add_scene,CLOCK) # noqa: F401
+from typing import Any
 import pygame as pg
+from pygame._sdl2.video import Renderer as _renderer
 
 
 window:pg.Window = pg.Window(**windowArgs)
-from pygame._sdl2.video import Renderer as _renderer
 
 screen:_renderer = _renderer(window)
 
@@ -46,7 +45,7 @@ class Scene(GenericScene):
 
 class Game(GenericGame):
 	def __init__(self, starter:str, metadata:dict[Any,Any]|None=None, run:bool=True, _debug:bool=False):
-		super().__init__(starter, window, metadata, run, _debug)
+		super().__init__(starter,window,metadata,run,_debug)
 	def _prepareWindow(self) -> None:
 		screen.clear()
 		screen.present()

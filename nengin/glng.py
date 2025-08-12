@@ -16,33 +16,26 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-class GLNenginError(Exception): pass
+from . import (GenericGame,GenericNenginError)
+class GLNenginError(GenericNenginError): pass
 if __name__ == "__main__": raise GLNenginError("Run Your own script. Not GlNengin!!!!")
-
-from typing import Any
-from . import (windowArgs,GenericScene,GenericGame,add_scene,CLOCK)
-
-if GenericGame.__backend__:
-	raise GLNenginError(f"Imported glng when backend '{GenericGame.__backend__}' was already"\
-		"imported, choose one and one only!")
+if GenericGame.__backend__: raise GLNenginError("Imported glng when backend '"\
+	f"{GenericGame.__backend__}' was already imported, choose one and one only!")
 GenericGame.__backend__ = "glng"
 
 
-
-
-
+from . import (windowArgs,GenericScene,add_scene,CLOCK) # noqa: F401
+from typing import Any
 import pygame as pg
 import moderngl
 import numpy as np
 
-
-
 windowArgs.update({
-	"opengl":True
+	"opengl":True, "vulkan":False
 })
 window:pg.Window = pg.Window(**windowArgs)
-context:moderngl.Context = moderngl.create_context()
 
+context:moderngl.Context = moderngl.create_context()
 
 generic_vertex_shader = """#version 330
 in vec2 in_pos;
@@ -104,6 +97,6 @@ class Scene(GenericScene):
 		context.clear(0.12549, 0.14118, 0.12549, 1.0)
 
 class Game(GenericGame):
-	def __init__(self, starter: str, metadata: dict[Any, Any] | None = None, run: bool = True, _debug: bool = False):
+	def __init__(self, starter:str, metadata:dict[Any,Any]|None=None, run:bool=True, _debug:bool=False):
 		super().__init__(starter, window, metadata, run, _debug)
 	def _prepareWindow(self) -> None: context.clear(0,0,0,1.0)
