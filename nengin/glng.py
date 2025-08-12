@@ -36,6 +36,10 @@ import moderngl
 import numpy as np
 
 
+
+windowArgs.update({
+	"opengl":True
+})
 window:pg.Window = pg.Window(**windowArgs)
 context:moderngl.Context = moderngl.create_context()
 
