@@ -93,7 +93,6 @@ screen = ScreenWrapper()
 
 class Scene(GenericScene):
 	def onDraw(self) -> None:
-		"""last thing that runs every frame"""
 		context.clear(0.12549, 0.14118, 0.12549, 1.0)
 
 class Game(GenericGame):

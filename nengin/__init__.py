@@ -157,7 +157,8 @@ class GenericScene:
 		self.__game__.window.flip()
 
 	@abstractmethod
-	def onDraw(self) -> None: pass
+	def onDraw(self) -> None:
+		"""last thing that runs every frame"""
 
 	def __globalReset__(self, prev:int) -> None:
 		#self.eat("bugs")
@@ -309,7 +310,7 @@ class GenericGame:
 	
 	@abstractmethod
 	def _prepareWindow(self) -> None:
-		"""You shouldn't call nengin's Generics directly"""
+		"""clears the screen from random noise and other garbage before it's first shown"""
 
 	def __init__(self,
 					starter:str,
