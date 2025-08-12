@@ -1,8 +1,7 @@
 from pygame.key import ScancodeWrapper
 import nengin.ng as ng
-from nengin.ng import Scene, screen
-from nengin import add_scene, Vector
-from pygame import font, FRect as Rect, K_SPACE
+from nengin.ng import Scene, screen,add_scene
+from pygame import font, FRect as Rect, K_SPACE, Vector2 as Vector
 from pygame._sdl2.video import Texture			# pyright: ignore
 from random import randint
 
@@ -54,7 +53,7 @@ class Start(GenericTitleSubtitle):
 		screen.draw_color = 235,235,235
 		screen.logical_size = 40,25 #Don't use logical_size please, this is just because I'm lazy
 		screen.draw_line((0,21),(40,21))
-		screen.logical_size = SIZE.xyi
+		screen.logical_size = int(SIZE.x),int(SIZE.y)
 
 @add_scene("jumper-gameover", windowSize=SIZE)
 class GameOver(GenericTitleSubtitle):
@@ -96,7 +95,7 @@ class JumpGame(Scene):
 		#https://github.com/pygame-community/pygame-ce/issues/3244
 		#https://github.com/pygame-community/pygame-ce/issues/3245
 		screen.draw_line((0,21),(40,21))
-		screen.logical_size = SIZE.xyi
+		screen.logical_size = int(SIZE.x),int(SIZE.y)
 
 		if not self.obstacles: self.obstacles.append(self.pos+SIZE.x+160)
 		elif self.obstacles[-1]+300 < self.pos+SIZE.x:

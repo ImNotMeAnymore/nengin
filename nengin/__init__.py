@@ -79,7 +79,7 @@ windowArgs:dict["str",Any] = { #there's probably a better way of doing this
 														# or WINDOWPOS_CENTERED, or WINDOWPOS_UNDEFINED
 	"fullscreen":False,		# (bool) Create a fullscreen window using size as the resolution, videomode change
 	"fullscreen_desktop":False,# (bool) Create a fullscreen window using the current desktop resolution
-	"opengl":False,			# (bool) Create a window with support for an OpenGL context
+	"opengl":True,			# (bool) Create a window with support for an OpenGL context
 	"vulkan":False,			# (bool) Create a window with support for a Vulkan instance
 	"hidden":True,				# (bool) Create a hidden window
 	"borderless":False,		# (bool) Create a window without borders
@@ -219,8 +219,8 @@ def add_scene(
 	name:str, #required
 	framerate:int=60,
 	windowName:str="Made with Nengin!",
-	windowSize:tuple[int,int]|int|Vector=704, #anything pygame.Vector2() accepts will do
-	windowPos:int|Vector=pygame.WINDOWPOS_UNDEFINED, #same but don't use a single int for this one
+	windowSize:tuple[int,int]|int|_vector=704, #anything pygame.Vector2() accepts will do
+	windowPos:int|_vector=pygame.WINDOWPOS_UNDEFINED, #same but don't use a single int for this one
 	windowIcon:pygame.Surface|None=None,
 	) -> Callable[[Type[GenericScene]],GenericScene]:
 	"""Decorator for registering scenes

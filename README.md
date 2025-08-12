@@ -71,6 +71,10 @@ class MyScene(Scene):
 Game("example")
 ```
 
+- add_scene("example") registers your scene under the name "example".
+- Game("example") boots the engine and starts from that scene.
+- onDraw is called by the engine each frame to render your scene.
+
 ---
 
 ## API Reference
