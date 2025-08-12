@@ -50,9 +50,7 @@ void main() {
 }"""
 
 class ScreenWrapper:
-	"""implements **some** SDL2 screen(Renderer) methods in openGL, for compat purposes
-	
-	don't rely too much on it"""
+	"""implements **some** SDL2 screen(Renderer) methods in openGL, for compat purposes"""
 	def __init__(self):
 		self._draw_color = pg.Color(0,0,0)
 		self._prog = context.program(vertex_shader=generic_vertex_shader,
