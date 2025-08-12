@@ -249,14 +249,12 @@ def add_scene(
 	if windowPos not in (pygame.WINDOWPOS_UNDEFINED, pygame.WINDOWPOS_CENTERED):
 		if isinstance(windowPos, int) and windowPos > 32768:
 			raise ValueError("Use a smaller window position or pass windowPos as a tuple")
-		else: windowPos = Vector(windowPos)
 	def _ret(cls:Type[GenericScene]) -> GenericScene:
 		#nonlocal name, framerate, windowName, windowSize, windowPos, windowIcon
 		x,y = Vector(windowSize).xyi
 		print(f"Registering: '{name}' [{x} x {y}] (ID:{GenericScene.__current_ID__-1})")
-		f = SCENES[name] = cls(
-			name, int(framerate), str(windowName), Vector(windowSize), windowPos, windowIcon,
-		)
+		f = SCENES[name] = cls(name, int(framerate), str(windowName),
+					Vector(windowSize), Vector(windowPos), windowIcon)
 		return f
 	return _ret
 
