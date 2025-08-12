@@ -16,7 +16,7 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-__version__ = "0.4.7b"
+__version__ = "0.4.8b"
 # 1.0.0 when I have some docs
 
 class GenericNenginError(Exception):
@@ -310,7 +310,13 @@ class GenericGame:
 	def _prepareWindow(self) -> None:
 		"""You shouldn't call nengin's Generics directly"""
 
-	def __init__(self, starter:str, window:pygame.Window, metadata:dict[Any,Any]|None=None, run:bool=True, _debug:bool=False):
+	def __init__(self,
+					starter:str,
+					window:pygame.Window,
+					metadata:dict[Any,Any]|None=None,
+					run:bool=True,
+					_debug:bool=False):
+		"""Starter is the starting scene ID"""
 		self.window:pygame.Window = window
 		self.__global_debug = _debug
 		for v in SCENES.values(): v.__game__ = self
