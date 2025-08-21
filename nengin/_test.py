@@ -1,4 +1,4 @@
-#!/bin/python3.13 -B
+#!/usr/bin/env python3.13 -B
 # to avoid spamming garbage
 import sys
 import os
