@@ -51,9 +51,9 @@ void main() {
 
 class ScreenWrapper:
 	"""implements **some** SDL2 screen(Renderer) methods in openGL, for compat purposes"""
-	def __init__(self):
+	def __init__(self, program:None|moderngl.Program=None):
 		self._draw_color = pg.Color(0,0,0)
-		self._prog = context.program(vertex_shader=generic_vertex_shader,
+		self._prog = program or context.program(vertex_shader=generic_vertex_shader,
 			fragment_shader=generic_fragment_shader)
 		self._vbo = context.buffer(reserve=8*4*4) # Up to 8 vertices
 		self._vao = context.simple_vertex_array(self._prog,self._vbo,'in_pos')
