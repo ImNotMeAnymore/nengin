@@ -24,8 +24,8 @@ if GenericGame.__backend__: raise GLNenginError("Imported glng when backend '"\
 GenericGame.__backend__ = "glng"
 
 
-from . import (windowArgs,GenericScene,add_scene,CLOCK) # noqa: F401
-from typing import Any
+from . import (windowArgs,GenericScene,add_scene,CLOCK,deprecated_alias) # noqa: F401
+from typing import Any, Union
 import pygame as pg
 import moderngl
 import numpy as np
@@ -67,24 +67,34 @@ class ScreenWrapper:
 	def clear(self): context.clear(*self._draw_color.normalized)
 
 	def present(self): window.flip()
-	def to_ndc(self, p): return 2*p[0]/window.size[0]-1,1-2*p[1]/window.size[1]
 
-	def draw_line(self, p1, p2): self._draw_shape((p1,p2), moderngl.LINES)
+	def point_to_ndc(self, x,y):
+		return self.ndc_transform(x,window.size[0]),self.ndc_transform(y,window.size[1])
+	
+	NArr = Union[float, int, np.ndarray, tuple]
+	
+	def ndc_transform(self,p:NArr,size:NArr) -> NArr: return 2*p/size-1
+
+	@deprecated_alias("point_to_ndc")
+	def to_ndc(self,p): return self.point_to_ndc(p[0],p[1])
+
+	def draw_line(self, p1,p2): self._draw_shape((p1,p2), moderngl.LINES)
 	def draw_point(self, point): self._draw_shape([point], moderngl.POINTS)
 	def draw_rect(self, rect):
-		x, y, w, h = rect
+		x,y,w,h = rect
 		self._draw_shape(((x,y),(x+w,y),(x+w,y+h),(x,y+h)), moderngl.LINE_LOOP)
 	def fill_rect(self, rect):
-		x, y, w, h = rect
-		a,b,c,d = (x, y),(x+w,y),(x+w,y+h),(x,y+h)
-		self._draw_shape((a,b,c,c,d,a), moderngl.TRIANGLES)
-	def draw_triangle(self, p1, p2, p3): self._draw_shape((p1,p2,p3), moderngl.LINE_LOOP)
-	def fill_triangle(self, p1, p2, p3): self._draw_shape((p1,p2,p3), moderngl.TRIANGLES)
-	def draw_quad(self, p1, p2, p3, p4): self._draw_shape([p1, p2, p3, p4], moderngl.LINE_LOOP)
-	def fill_quad(self, p1, p2, p3, p4): self._draw_shape([p1, p2, p3, p3, p4, p1], moderngl.TRIANGLES)
+		x,y,w,h = rect
+		a,c = (x,y),(x+w,y+h)
+		self._draw_shape((a,(x+w,y),c,c,(x,y+h),a), moderngl.TRIANGLES)
+	def draw_triangle(self,p1,p2,p3): self._draw_shape((p1,p2,p3), moderngl.LINE_LOOP)
+	def fill_triangle(self,p1,p2,p3): self._draw_shape((p1,p2,p3), moderngl.TRIANGLES)
+	def draw_quad(self,p1,p2,p3,p4): self._draw_shape((p1,p2,p3,p4), moderngl.LINE_LOOP)
+	def fill_quad(self,p1,p2,p3,p4): self._draw_shape((p1,p2,p3,p3,p4,p1), moderngl.TRIANGLES)
 
 	def _draw_shape(self, points, mode):
-		pts = np.array([self.to_ndc(p) for p in points], dtype='f4')
+		#pts = np.array([self.to_ndc(p) for p in points], dtype='f4') DEPRECATED
+		pts = np.asarray(self.ndc_transform(np.array(points),window.size), dtype="f4")
 		self._vbo.write(pts.tobytes())
 		self._prog['color'].value = self._draw_color.normalized	#type: ignore
 		self._vao.render(mode=mode, vertices=len(points))
@@ -92,8 +102,7 @@ class ScreenWrapper:
 screen = ScreenWrapper()
 
 class Scene(GenericScene):
-	def onDraw(self) -> None:
-		context.clear(0.12549, 0.14118, 0.12549, 1.0)
+	def onDraw(self) -> None: context.clear(0.12549,0.14118,0.12549,1.0)
 
 class Game(GenericGame):
 	def __init__(self, starter:str, metadata:dict[Any,Any]|None=None, run:bool=True, _debug:bool=False):

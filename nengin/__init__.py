@@ -16,7 +16,7 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-__version__ = "0.4.10b"
+__version__ = "0.4.11b"
 # 1.0.0 when I have some docs
 
 class GenericNenginError(Exception):
@@ -33,16 +33,13 @@ from typing import Callable, Type, Any
 from abc import abstractmethod
 
 
-"""
+#"""
 # In case I need it, no sense to activate it when there are no warnings
 # to activate it simply comment out the first triple "
-# TODO: actually use this, what's the point of having it if I don't
+
 import warnings
-
 from typing import TypeVar, cast
-
-F = TypeVar("F", bound=Callable[..., Any])
-
+F = TypeVar("F",bound=Callable[...,Any])
 def deprecated_alias(new: str) -> Callable[[F], F]:
 	def dec(f: F) -> F:
 		def wr(*a: Any, **k: Any) -> Any:
