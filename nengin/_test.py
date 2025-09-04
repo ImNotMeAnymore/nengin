@@ -1,11 +1,11 @@
-#!/bin/python3.13 -B
-# to avoid spamming garbage
+#!/usr/bin/env python3 -B -Wd
+# -B to avoid spamming garbage files
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 #shenanigans to run the script from the IDE
 
-import nengin.ng as ng
+import nengin.glng as ng
 #import nengin.ng as ng
 
 import pygame as pg
