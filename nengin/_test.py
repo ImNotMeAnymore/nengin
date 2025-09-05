@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 -B -Wd
+#!/usr/bin/env python3.13 -B -Wd
 # -B to avoid spamming garbage files
 import sys
 import os
