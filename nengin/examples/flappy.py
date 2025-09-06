@@ -1,3 +1,4 @@
+#!/usr/bin/env python3.13 -B -Wd
 import nengin.ng as ng
 from nengin.ng import screen, Scene, add_scene
 from pygame import FRect as Rect, K_SPACE, Vector2 as Vector

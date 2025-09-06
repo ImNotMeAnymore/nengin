@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.13
-# nengin.py, a small pygame-ce wrapper
-# Copyright (C) 2024  notmeanymore
+# Nengin, a small pygame-ce wrapper
+# Copyright (C) 2025  notmeanymore
 
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -72,8 +72,7 @@ class ScreenWrapper:
 		return self.ndc_transform(x,window.size[0]),self.ndc_transform(y,window.size[1])
 	
 	NArr = Union[float, int, np.ndarray, tuple]
-	
-	def ndc_transform(self,p:NArr,size:NArr) -> NArr: return 2*p/size-1
+	def ndc_transform(self,p:NArr,size:NArr) -> NArr: return 2*p/size-1 #type: ignore
 
 	@deprecated_alias("point_to_ndc")
 	def to_ndc(self,p): return self.point_to_ndc(p[0],p[1])
@@ -92,9 +91,29 @@ class ScreenWrapper:
 	def draw_quad(self,p1,p2,p3,p4): self._draw_shape((p1,p2,p3,p4), moderngl.LINE_LOOP)
 	def fill_quad(self,p1,p2,p3,p4): self._draw_shape((p1,p2,p3,p3,p4,p1), moderngl.TRIANGLES)
 
+	def draw_ngon(self,xy,size,n=3,angle=0.0):
+		if n<=2: return
+		x,y = xy
+		a = np.linspace(0,2*np.pi,n,endpoint=False)+angle
+		self._draw_shape(np.stack((x+size*np.cos(a),y+size*np.sin(a)),axis=-1), moderngl.LINE_LOOP)
+	
+	def fill_ngon(self,xy,size,n=3,angle=0.0):
+		if n <= 2: return
+		x,y = xy
+		a = np.linspace(0,2*np.pi,n,endpoint=False)+angle
+		sh = np.stack((x+size*np.cos(a),y+size*np.sin(a)),axis=-1)
+		self._draw_shape(np.vstack([[x,y],sh,sh[0]]), moderngl.TRIANGLE_FAN)
+	
+
 	def _draw_shape(self, points, mode):
-		#pts = np.array([self.to_ndc(p) for p in points], dtype='f4') DEPRECATED
-		pts = np.asarray(self.ndc_transform(np.array(points),window.size), dtype="f4")
+		k = np.array(points)
+		x,y = window.size
+		k[...,1]=y-k[...,1]
+		pts = np.asarray(self.ndc_transform(k,window.size), dtype="f4")
+		if (by:=pts.nbytes) > self._vbo.size:
+			self._vbo.release()
+			self._vbo = context.buffer(reserve=by+8*4*4)
+			self._vao = context.simple_vertex_array(self._prog, self._vbo, 'in_pos')
 		self._vbo.write(pts.tobytes())
 		self._prog['color'].value = self._draw_color.normalized	#type: ignore
 		self._vao.render(mode=mode, vertices=len(points))

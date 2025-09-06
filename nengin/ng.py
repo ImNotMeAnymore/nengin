@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.13
-# nengin.py, a small pygame-ce wrapper
-# Copyright (C) 2024  notmeanymore
+# Nengin, a small pygame-ce wrapper
+# Copyright (C) 2025  notmeanymore
 
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.13
 # nengin.py, a small pygame-ce wrapper
-# Copyright (C) 2024  notmeanymore
+# Copyright (C) 2025  notmeanymore
 
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -16,7 +16,7 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-__version__ = "0.4.11b"
+__version__ = "0.4.12b"
 # 1.0.0 when I have some docs
 
 class GenericNenginError(Exception):
