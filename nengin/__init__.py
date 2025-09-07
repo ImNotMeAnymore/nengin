@@ -16,7 +16,7 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-__version__ = "0.4.12b"
+__version__ = "0.4.13b"
 # 1.0.0 when I have some docs
 
 class GenericNenginError(Exception):
@@ -311,7 +311,7 @@ class GenericGame:
 					starter:str,
 					window:pygame.Window,
 					metadata:dict[Any,Any]|None=None,
-					run:bool=True,
+					run:bool=False,
 					_debug:bool=False):
 		"""Starter is the starting scene ID"""
 		self.window:pygame.Window = window

@@ -124,6 +124,9 @@ class Scene(GenericScene):
 	def onDraw(self) -> None: context.clear(0.12549,0.14118,0.12549,1.0)
 
 class Game(GenericGame):
-	def __init__(self, starter:str, metadata:dict[Any,Any]|None=None, run:bool=True, _debug:bool=False):
+	@classmethod
+	def start(cls, starter:str, metadata:dict[Any,Any]|None=None):
+		cls(starter=starter, metadata=metadata).run()
+	def __init__(self, starter:str, metadata:dict[Any,Any]|None=None, run:bool=False, _debug:bool=False):
 		super().__init__(starter, window, metadata, run, _debug)
 	def _prepareWindow(self) -> None: context.clear(0,0,0,1.0)
