@@ -325,7 +325,9 @@ class GenericGame:
 		h.__globalOnStart__(-1, metadata or {})
 		if (h.windowPos == pygame.WINDOWPOS_UNDEFINED):
 			window.position = pygame.WINDOWPOS_CENTERED
-		if run: return self.run()
+		if run:
+			self.run()
+			self.run = lambda *_: print("Don't call .run() if Game has run=True")
 
 	__changingStack:dict[str,dict[Any,Any]] = {}
 	def change_scene(self, to:str, metadata:dict[Any,Any]|None=None) -> None:
