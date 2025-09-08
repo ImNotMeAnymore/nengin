@@ -201,8 +201,8 @@ class GenericScene:
 	def keyHandler(self, ks:ScancodeWrapper) -> None:
 		"""runs every tick, ks is an array of currently pressed keys"""
 	def onKey(self, k:int) -> None: """runs once, when key k is pressed"""
-	def onMouseUp(self, k:int, pos:Vector) -> None: """runs once, when button k is released"""
-	def onMouseDown(self, k:int, pos:Vector) -> None: """runs once, when button k is pressed"""
+	def onMouseUp(self, k:int, pos:tuple[int,int]) -> None: """runs once, when button k is released"""
+	def onMouseDown(self, k:int, pos:tuple[int,int]) -> None: """runs once, when button k is pressed"""
 	def withMetadata(self, meta:dict[Any,Any]) -> "GenericScene":
 		"""metadata is data needed at the moment, deleted on __globalReset__()
 		For example: Text to draw on a generic dialog bubble Scene
