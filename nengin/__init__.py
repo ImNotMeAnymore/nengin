@@ -56,7 +56,7 @@ class ContextClass(dict[str,"GenericScene"]):
 		except KeyError: pass
 		if not self: raise GenericNenginError("No scenes have been registered!")
 		s = "\n	· ".join(super().keys())
-		raise GenericNenginError(f"Scene {k} not found, registered scenes are:\n	· {s}")
+		raise GenericNenginError(f"Scene \"{k}\" not found, registered scenes are:\n	· {s}")
 
 class Vector(_vector):
 	"""pygame's Vector, but with xyi method, should be in pygame itself imo"""
