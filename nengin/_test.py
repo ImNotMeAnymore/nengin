@@ -41,4 +41,4 @@ class CustomGameScene(TestParentScene):
 		}"""# maximum visible n-gon of k radius, still need to work on this
 			
 
-ng.Game("TestScene")
+ng.Game.start("TestScene")
