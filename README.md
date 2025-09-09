@@ -45,7 +45,7 @@ pip install moderngl numpy
 
 ## Quickstart
 
-#### Using SDL2/pygame-ce backend
+#### Using SDL2(pygame-ce's default) backend
 
 ```python
 from nengin.ng import Scene,Game,screen,add_scene
