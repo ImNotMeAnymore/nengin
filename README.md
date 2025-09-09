@@ -77,12 +77,6 @@ Game.start("example")
 
 ---
 
-## API Reference
-
-See [docs/index.md](nengin/nengin/docs/index.md) for a full API reference.
-
----
-
 ## Examples
 
 See `nengin/nengin/examples/` for more:
