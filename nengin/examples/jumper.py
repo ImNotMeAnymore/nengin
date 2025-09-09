@@ -119,4 +119,4 @@ class JumpGame(Scene):
 	def keyHandler(self, ks: ScancodeWrapper) -> None:
 		if ks[K_SPACE] and not self.t: self.t = 1
 
-if __name__ == "__main__": ng.Game("jumper-start")
+if __name__ == "__main__": ng.Game.start("jumper-start")

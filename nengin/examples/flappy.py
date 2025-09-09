@@ -51,4 +51,4 @@ class FlappyGame(Scene):
 		screen.draw_color = 255,0,0
 		screen.draw_line((0,Y-30),(X,Y-30))
 
-if __name__ == "__main__": ng.Game("flappy-game")
+if __name__ == "__main__": ng.Game.start("flappy-game")
