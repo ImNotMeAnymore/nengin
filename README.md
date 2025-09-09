@@ -68,11 +68,11 @@ class MyScene(Scene):
 		screen.draw_color = (0, 255, 0)
 		screen.draw_triangle((100,100), (200,100), (150,200))
 
-Game("example")
+Game.start("example")
 ```
 
 - add_scene("example") registers your scene under the name "example".
-- Game("example") boots the engine and starts from that scene.
+- Game.start("example") boots the engine and starts from that scene.
 - onDraw is called by the engine each frame to render your scene.
 
 ---
