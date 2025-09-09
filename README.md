@@ -1,6 +1,6 @@
 # This is nengin
 
-Nengin is a small, object-oriented utility for [pygame-ce](https://github.com/pygame-community/pygame-ce), designed to make it easy to develop games with multiple independent scenes (such as GUIs, menus, and gameplay loops) in a consistent.
+Nengin is a small, object-oriented utility for [pygame-ce](https://github.com/pygame-community/pygame-ce), designed to make it easy to develop games with multiple independent scenes (such as GUIs, menus, and gameplay loops) in a consistent way.
 
 ---
 
