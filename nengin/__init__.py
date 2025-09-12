@@ -33,7 +33,7 @@ from typing import Callable, Type, Any
 from abc import abstractmethod
 
 
-#"""
+"""
 # In case I need it, no sense to activate it when there are no warnings
 # to activate it simply comment out the first triple "
 
@@ -220,7 +220,7 @@ def add_scene(
 	framerate:int=60,
 	windowName:str="Made with Nengin!",
 	windowSize:NumberPair=704, #anything pygame.Vector2() accepts will do
-	windowPos:int|_vector=pygame.WINDOWPOS_UNDEFINED, #same but don't use a single int for this one
+	windowPos:NumberPair=pygame.WINDOWPOS_UNDEFINED, #same as above
 	windowIcon:pygame.Surface|None=None,
 	) -> Callable[[Type[GenericScene]],GenericScene]:
 	"""Decorator for registering scenes
@@ -250,7 +250,6 @@ def add_scene(
 		if isinstance(windowPos, int) and windowPos > 32768:
 			raise ValueError("Use a smaller window position or pass windowPos as a tuple")
 	def _ret(cls:Type[GenericScene]) -> GenericScene:
-		#nonlocal name, framerate, windowName, windowSize, windowPos, windowIcon
 		x,y = Vector(windowSize).xyi
 		print(f"Registering: '{name}' [{x} x {y}] (ID:{GenericScene.__current_ID__-1})")
 		f = SCENES[name] = cls(name, int(framerate), str(windowName),
@@ -341,8 +340,5 @@ class GenericGame:
 		h.__globalOnStart__(-1, metadata or {})
 		if (h.windowPos == pygame.WINDOWPOS_UNDEFINED):
 			self.window.position = pygame.WINDOWPOS_CENTERED
-		if run:
-			print("Deprecated: use Game.start() instead")
-			#self.run()
-			#self.run = lambda *_: print("Don't call .run() if Game has run=True")
-	
+		if run: print("Deprecated: use Game.start() instead")
+

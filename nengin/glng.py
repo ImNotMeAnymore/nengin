@@ -74,9 +74,6 @@ class ScreenWrapper:
 	NArr = Union[float, int, np.ndarray, tuple]
 	def ndc_transform(self,p:NArr,size:NArr) -> NArr: return 2*p/size-1 #type: ignore
 
-	@deprecated_alias("point_to_ndc")
-	def to_ndc(self,p): return self.point_to_ndc(p[0],p[1])
-
 	def draw_line(self, p1,p2): self._draw_shape((p1,p2), moderngl.LINES)
 	def draw_point(self, point): self._draw_shape((point,), moderngl.POINTS)
 	def draw_rect(self, rect):
