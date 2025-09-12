@@ -49,10 +49,10 @@ void main() {
 	fragColor = color;
 }"""
 
+
 class ScreenWrapper:
+	
 	"""implements **some** SDL2 screen(Renderer) methods in openGL, for compat purposes"""
-	
-	
 	def __init__(self, program:None|moderngl.Program=None, *vaoAttributes:str):
 		self._draw_color = pg.Color(0,0,0)
 		self._prog = program or context.program(vertex_shader=generic_vertex_shader,
@@ -78,7 +78,7 @@ class ScreenWrapper:
 	def to_ndc(self,p): return self.point_to_ndc(p[0],p[1])
 
 	def draw_line(self, p1,p2): self._draw_shape((p1,p2), moderngl.LINES)
-	def draw_point(self, point): self._draw_shape([point], moderngl.POINTS)
+	def draw_point(self, point): self._draw_shape((point,), moderngl.POINTS)
 	def draw_rect(self, rect):
 		x,y,w,h = rect
 		self._draw_shape(((x,y),(x+w,y),(x+w,y+h),(x,y+h)), moderngl.LINE_LOOP)
@@ -104,12 +104,18 @@ class ScreenWrapper:
 		sh = np.stack((x+size*np.cos(a),y+size*np.sin(a)),axis=-1)
 		self._draw_shape(np.vstack([[x,y],sh,sh[0]]), moderngl.TRIANGLE_FAN)
 	
-
+	__drawcache__ = {}
 	def _draw_shape(self, points, mode):
 		k = np.array(points)
 		x,y = window.size
 		k[...,1]=y-k[...,1]
-		pts = np.asarray(self.ndc_transform(k,window.size), dtype="f4")
+	
+		K=(np.round(k,5).tobytes(),(x,y),mode)
+		if K in self.__drawcache__: pts = self.__drawcache__[K]
+		else:
+			self.__drawcache__[K] = pts = np.asarray(self.ndc_transform(k,window.size), dtype="f4")
+
+		
 		if (by:=pts.nbytes) > self._vbo.size:
 			self._vbo.release()
 			self._vbo = context.buffer(reserve=by+8*4*4)
@@ -124,9 +130,7 @@ class Scene(GenericScene):
 	def onDraw(self) -> None: context.clear(0.12549,0.14118,0.12549,1.0)
 
 class Game(GenericGame):
-	@classmethod
-	def start(cls, starter:str, metadata:dict[Any,Any]|None=None):
-		cls(starter=starter, metadata=metadata).run()
 	def __init__(self, starter:str, metadata:dict[Any,Any]|None=None, run:bool=False, _debug:bool=False):
-		super().__init__(starter, window, metadata, run, _debug)
+		self.window = window
+		super().__init__(starter, metadata, run, _debug)
 	def _prepareWindow(self) -> None: context.clear(0,0,0,1.0)

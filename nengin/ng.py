@@ -43,11 +43,9 @@ class Scene(GenericScene):
 		screen.present()
 
 class Game(GenericGame):
-	@classmethod
-	def start(cls, starter:str, metadata:dict[Any,Any]|None=None):
-		cls(starter=starter, metadata=metadata).run()
 	def __init__(self, starter:str, metadata:dict[Any,Any]|None=None, run:bool=False, _debug:bool=False):
-		super().__init__(starter,window,metadata,run,_debug)
+		self.window = window
+		super().__init__(starter,metadata,run,_debug)
 	def _prepareWindow(self) -> None:
 		screen.clear()
 		screen.present()

@@ -16,7 +16,7 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-__version__ = "0.4.13b"
+__version__ = "0.4.14b"
 # 1.0.0 when I have some docs
 
 class GenericNenginError(Exception):
@@ -95,6 +95,9 @@ windowArgs:dict["str",Any] = { #there's probably a better way of doing this
 
 #window:pygame.Window
 
+
+NumberPair = float|Vector|list[float]|tuple[float,float]
+
 class GenericScene:
 	__byID__:dict[int,"GenericScene"] = {}
 	__current_ID__:int = 0
@@ -128,7 +131,7 @@ class GenericScene:
 				framerate:int,
 				windowName:str,
 				windowSize:Vector,
-				windowPos:int|Vector,
+				windowPos:NumberPair,
 				windowIcon:pygame.Surface|None=None,
 			) -> None:
 		self.name:str = name
@@ -136,7 +139,7 @@ class GenericScene:
 		self.windowName:str = windowName
 		self.windowSize:Vector = windowSize
 		self.windowIcon:pygame.Surface|None = windowIcon
-		self.windowPos:int|Vector = windowPos
+		self.windowPos:NumberPair = windowPos
 		self.metadata:dict[Any,Any] = {}
 		self.__byID__[self.id] = self
 		self.__started__:bool = False
@@ -176,7 +179,7 @@ class GenericScene:
 		window.title = self.windowName
 		if self.windowIcon: window.set_icon(self.windowIcon)
 		if (self.windowSize.xyi != window.size): window.size = self.windowSize.xyi
-		window.position = self.windowPos
+		window.position = Vector(self.windowPos)
 		if not self.__started__:
 			self.__started__ = True
 			self.firstStart()
@@ -216,7 +219,7 @@ def add_scene(
 	name:str, #required
 	framerate:int=60,
 	windowName:str="Made with Nengin!",
-	windowSize:tuple[int,int]|int|_vector=704, #anything pygame.Vector2() accepts will do
+	windowSize:NumberPair=704, #anything pygame.Vector2() accepts will do
 	windowPos:int|_vector=pygame.WINDOWPOS_UNDEFINED, #same but don't use a single int for this one
 	windowIcon:pygame.Surface|None=None,
 	) -> Callable[[Type[GenericScene]],GenericScene]:
@@ -257,64 +260,77 @@ def add_scene(
 
 class GenericGame:
 	__backend__:None|str = None
-	
+	global_tick:int = 0 # Number of ticks since start
+	dt:int = 0 #miliseconds since last updated
+	window:pygame.Window
 	@property
 	def _debug(self):
 		"""If debug flag is up, globally or by the scene itself"""
 		return self.__global_debug or self.scene._debug
-	global_tick = 0
-	dt = 0
+
+	__change_stack__:dict[str,dict[Any,Any]] = {}
+	def change_scene(self, to:str, metadata:dict[Any,Any]|None=None) -> None:
+		if to in self.__change_stack__: del self.__change_stack__[to]
+		self.__change_stack__[str(to)] = metadata or {}
+	changeSceneTo = change_scene
+
+	
+	@abstractmethod
+	def _prepareWindow(self) -> None:
+		"""clears the screen from random noise and other garbage before it's first shown"""
+
+	def finisher(self):
+		"""this function gets executed at the very end of Game, after all scenes have been dealt with"""
+		pygame.quit()
+
+	def game_ticker(self):
+		"""A single game tick, this gets called on loop forever by default
+		Doesn't handle it's own errors """
+		while self.__change_stack__:
+				# NOTE: this prevents recursion but makes
+				# it possible to become trapped between a
+				# Scene changing to another and the other
+				# changing back to the original one, also
+				# changing to a Scene more than once will
+				# now ignore the metadata argument of all
+				# but the last call to changeScene(Scene)
+			self.cur, meta = self.__change_stack__.popitem()
+			new:GenericScene = SCENES[self.cur]
+			self.scene.__globalOnEnd__(new.id)
+			new.__globalOnStart__(self.scene.id, meta=meta)
+			self.scene = new
+		self.dt = CLOCK.tick(self.scene.framerate)
+		events = pygame.event.get()
+		for e in events:
+			if e.__dict__.get("window") not in (self.window,None):
+				raise GenericNenginError("Multiple windows are not supported!")
+			self.scene.__globalEventHandler__(e)
+		self.scene.__globalKeyHandler__(pygame.key.get_pressed())
+		self.global_tick += 1
+		self.scene.__globalTick__()
+		self.scene.__globalDraw__()
 	
 	def run(self) -> None:
-		"""Runs the game"""
+		"""The default game loop, will probably stop being a stadalone function eventually"""
+		while True: self.game_ticker()
+
+	@classmethod
+	def start(cls, starter:str, metadata:dict[Any,Any]|None=None):
+		self = cls(starter=starter, metadata=metadata)
 		self.window.show()
-		try:
-			while True:
-				while self.__changingStack:
-						# NOTE: this prevents recursion but makes
-						# it possible to become trapped between a
-						# Scene changing to another and the other
-						# changing back to the original one, also
-						# changing to a Scene more than once will
-						# now ignore the metadata argument of all
-						# but the last call to changeScene(Scene)
-					self.cur, meta = self.__changingStack.popitem()
-					new:GenericScene = SCENES[self.cur]
-					self.scene.__globalOnEnd__(new.id)
-					new.__globalOnStart__(self.scene.id, meta=meta)
-					self.scene = new
-				self.dt = CLOCK.tick(self.scene.framerate)
-				events = pygame.event.get()
-				for e in events:
-					if e.__dict__.get("window") not in (self.window,None):
-						raise GenericNenginError("Multiple windows are not supported!")
-					self.scene.__globalEventHandler__(e)
-				self.scene.__globalKeyHandler__(pygame.key.get_pressed())
-				self.global_tick += 1
-				self.scene.__globalTick__()
-				self.scene.__globalDraw__()
+		try: self.run()
 		except DoneFlag as e: return print(e)
 		except Exception as e:
 			if self._debug: raise
 			print(f"{type(e)}: {e} !!!!!")
 		finally: self.finisher()
 
-	def finisher(self):
-		"""this function gets executed at the very end of Game, after all scenes have been dealt with"""
-		pygame.quit()
-	
-	@abstractmethod
-	def _prepareWindow(self) -> None:
-		"""clears the screen from random noise and other garbage before it's first shown"""
-
 	def __init__(self,
 					starter:str,
-					window:pygame.Window,
 					metadata:dict[Any,Any]|None=None,
 					run:bool=False,
 					_debug:bool=False):
 		"""Starter is the starting scene ID"""
-		self.window:pygame.Window = window
 		self.__global_debug = _debug
 		for v in SCENES.values(): v.__game__ = self
 		self.scene:GenericScene
@@ -324,13 +340,9 @@ class GenericGame:
 		self._prepareWindow()
 		h.__globalOnStart__(-1, metadata or {})
 		if (h.windowPos == pygame.WINDOWPOS_UNDEFINED):
-			window.position = pygame.WINDOWPOS_CENTERED
+			self.window.position = pygame.WINDOWPOS_CENTERED
 		if run:
-			self.run()
-			self.run = lambda *_: print("Don't call .run() if Game has run=True")
-
-	__changingStack:dict[str,dict[Any,Any]] = {}
-	def change_scene(self, to:str, metadata:dict[Any,Any]|None=None) -> None:
-		if to in self.__changingStack: del self.__changingStack[to]
-		self.__changingStack[str(to)] = metadata or 	{}
-	changeSceneTo = change_scene
+			print("Deprecated: use Game.start() instead")
+			#self.run()
+			#self.run = lambda *_: print("Don't call .run() if Game has run=True")
+	
