@@ -39,6 +39,6 @@ class CustomGameScene(TestParentScene):
 		"""{1:4, 1.1:4, 1.2:4, 1.3:4, 1.4:4, 1.5:3, 1.6:21, 1.7:9, 2:5, 3:14,
 			4:11, 5:23, 6:10, 7:32, 8:21, 9:18, 10:26, 44:45, 50:85, 55:68,
 		}"""# maximum visible n-gon of k radius, still need to work on this
-		if self.frame_counter >= 8953: self.quit()
+		if self.frame_counter >= 300: self.quit()
 
 ng.Game.start("TestScene")
