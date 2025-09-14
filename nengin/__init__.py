@@ -16,7 +16,7 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-__version__ = "0.4.14b"
+__version__ = "0.4.15b"
 # 1.0.0 when I have some docs
 
 class GenericNenginError(Exception):
@@ -47,7 +47,9 @@ def deprecated_alias(new: str) -> Callable[[F], F]:
 			return f(*a, **k)
 		return cast(F, wr)
 	return dec
-" """
+"""
+deprecated_alias = NotImplemented
+#"""
 
 class ContextClass(dict[str,"GenericScene"]):
 	"""dict that errors when no such scene exists"""
