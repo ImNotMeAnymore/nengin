@@ -33,10 +33,9 @@ from typing import Callable, Type, Any
 from abc import abstractmethod
 
 
-"""
-# In case I need it, no sense to activate it when there are no warnings
+# In case I need it, no sense to have it when there are no warnings
 # to activate it simply comment out the first triple "
-
+"""
 import warnings
 from typing import TypeVar, cast
 F = TypeVar("F",bound=Callable[...,Any])
@@ -48,7 +47,7 @@ def deprecated_alias(new: str) -> Callable[[F], F]:
 		return cast(F, wr)
 	return dec
 """
-deprecated_alias = NotImplemented
+def deprecated_alias(*x): return lambda a: a
 #"""
 
 class ContextClass(dict[str,"GenericScene"]):
@@ -94,9 +93,6 @@ windowArgs:dict["str",Any] = { #there's probably a better way of doing this
 	"always_on_top":False,	# (bool) Create a window that is always presented above others
 	"utility":False,			# (bool) Create a window that doesn't appear in the task bar
 } #Maaaybe a vulkan backend too?
-
-#window:pygame.Window
-
 
 NumberPair = float|Vector|list[float]|tuple[float,float]
 
@@ -331,7 +327,7 @@ class GenericGame:
 					metadata:dict[Any,Any]|None=None,
 					run:bool=False,
 					_debug:bool=False):
-		"""Starter is the starting scene ID"""
+		"""Starter is the starting scene name"""
 		self.__global_debug = _debug
 		for v in SCENES.values(): v.__game__ = self
 		self.scene:GenericScene

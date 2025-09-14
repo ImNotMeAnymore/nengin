@@ -7,11 +7,17 @@ from numpy.random.mtrand import randint
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 #shenanigans to run the script from the IDE
 
+from nengin import deprecated_alias
 import nengin.glng as ng
 #import nengin.ng as ng
 
 import pygame as pg
 
+
+class A:
+	@deprecated_alias("wow")
+	def test(self): pass
+A().test()
 
 
 class TestParentScene(ng.Scene):
