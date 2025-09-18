@@ -28,7 +28,7 @@ class TestParentScene(ng.Scene):
 		if k == pg.K_SPACE: self.color.append(self.color.pop(0))
 
 
-@ng.add_scene("TestScene",75,"Made with Nengin!",704)
+@ng.add_scene("TestScene",75,"Made with Nengin!",500)
 class CustomGameScene(TestParentScene):
 	def onStart(self, prev: int) -> None:
 		self.ang = 0

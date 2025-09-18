@@ -251,7 +251,7 @@ def add_scene(
 		x,y = Vector(windowSize).xyi
 		print(f"Registering: '{name}' [{x} x {y}] (ID:{GenericScene.__current_ID__-1})")
 		f = SCENES[name] = cls(name, int(framerate), str(windowName),
-					Vector(windowSize), Vector(windowPos), windowIcon)
+				Vector(windowSize), windowPos, windowIcon)
 		return f
 	return _ret
 
