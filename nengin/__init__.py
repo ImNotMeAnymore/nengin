@@ -16,7 +16,7 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-__version__ = "0.4.15b"
+__version__ = "0.4.16b"
 # 1.0.0 when I have some docs
 
 class GenericNenginError(Exception):
@@ -29,7 +29,7 @@ import pygame
 #print("nengin", __version__)
 from pygame.key import ScancodeWrapper
 from pygame import Vector2 as _vector
-from typing import Callable, Type, Any
+from typing import Callable, Type, Any, Union
 from abc import abstractmethod
 
 
@@ -47,7 +47,7 @@ def deprecated_alias(new: str) -> Callable[[F], F]:
 		return cast(F, wr)
 	return dec
 """
-def deprecated_alias(*x): return lambda a: a
+def deprecated_alias(new:str): return lambda a: a
 #"""
 
 class ContextClass(dict[str,"GenericScene"]):
@@ -56,8 +56,8 @@ class ContextClass(dict[str,"GenericScene"]):
 		try: return super().__getitem__(k)
 		except KeyError: pass
 		if not self: raise GenericNenginError("No scenes have been registered!")
-		s = "\n	· ".join(super().keys())
-		raise GenericNenginError(f"Scene \"{k}\" not found, registered scenes are:\n	· {s}")
+		s = "\n	- ".join(super().keys())
+		raise GenericNenginError(f"Scene \"{k}\" not found, registered scenes are:\n	- {s}")
 
 class Vector(_vector):
 	"""pygame's Vector, but with xyi method, should be in pygame itself imo"""
@@ -94,7 +94,7 @@ windowArgs:dict["str",Any] = { #there's probably a better way of doing this
 	"utility":False,			# (bool) Create a window that doesn't appear in the task bar
 } #Maaaybe a vulkan backend too?
 
-NumberPair = float|Vector|list[float]|tuple[float,float]
+NumberPair = Union[float,list[float],tuple[float,float],"np.ndarray",Vector] #noqa:F821#type:ignore
 
 class GenericScene:
 	__byID__:dict[int,"GenericScene"] = {}
@@ -271,7 +271,6 @@ class GenericGame:
 		self.__change_stack__[str(to)] = metadata or {}
 	changeSceneTo = change_scene
 
-	
 	@abstractmethod
 	def _prepareWindow(self) -> None:
 		"""clears the screen from random noise and other garbage before it's first shown"""
@@ -306,7 +305,7 @@ class GenericGame:
 		self.global_tick += 1
 		self.scene.__globalTick__()
 		self.scene.__globalDraw__()
-	
+
 	def run(self) -> None:
 		"""The default game loop, will probably stop being a stadalone function eventually"""
 		while True: self.game_ticker()
