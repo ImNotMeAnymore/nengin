@@ -46,21 +46,12 @@ out vec4 fragColor;
 void main() {
 	fragColor = color;
 }"""
-# this accepts only ndc, not great if they're being recalculated every time
-generic_vertex_shader = """#version 330
-in vec2 in_pos;
-void main() {
-	gl_Position = vec4(in_pos, 0.0, 1.0);
-}"""
-
-
 pixel_vertex_shader = """#version 330
 in vec2 in_pos;
 uniform vec2 window_size;
-
 void main() {
 	vec2 ndc = (in_pos/window_size)*2.0-1.0;
-	ndc.y = -ndc.y;
+	ndc.y = -ndc.y; //Because pygame's coordinates are top to bottom
 	gl_Position = vec4(ndc, 0.0, 1.0);
 }
 """

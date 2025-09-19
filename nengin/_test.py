@@ -1,5 +1,3 @@
-
-
 #!/usr/bin/env python3.13 -B -Wd -m cProfile -s cumulative
 # -B to avoid spamming garbage files
 import sys
@@ -32,7 +30,7 @@ class TestParentScene(ng.Scene):
 		if k == pg.K_SPACE: self.color.append(self.color.pop(0))
 
 pg.mouse.set_visible(False)
-@ng.add_scene("TestScene",75,"Made with Nengin!", windowSize=(1440,900))
+@ng.add_scene("TestScene",75,"Made with Nengin!", windowSize=(1440-43,900-25))
 class NewScreenScene(TestParentScene, debug=True):
 	C = {t:[randint(0,255)for i in "RGB"]for t in range(1,30+1)}
 	ang = 0
@@ -49,7 +47,7 @@ class NewScreenScene(TestParentScene, debug=True):
 		self.ang += self.dt/100
 		ng.screen.draw_color = 255,255,255
 		
-		ng.screen.fill_ngon((352,352),40+50*13,100,(self.ang))
+		ng.screen.fill_ngon((352,352),40+50*13,10000000000,(self.ang))
 		#for i in range(30,0,-1):
 		#	ng.screen.draw_color = [[max,min][i%2](c1,c2)for c1,c2 in zip(self.C[i],self.color)]
 		#	ng.screen.fill_ngon((352,352),40+i*13,59,(self.ang/i))
