@@ -30,26 +30,15 @@ class TestParentScene(ng.Scene):
 		if k == pg.K_SPACE: self.color.append(self.color.pop(0))
 
 pg.mouse.set_visible(False)
-@ng.add_scene("TestScene",75,"Made with Nengin!", windowSize=(1440-43,900-25))
+@ng.add_scene("TestScene",75,"Made with Nengin!", windowSize=(400,600))
 class NewScreenScene(TestParentScene, debug=True):
 	C = {t:[randint(0,255)for i in "RGB"]for t in range(1,30+1)}
 	ang = 0
 	def onDraw(self) -> None:
 		screen.draw_color = 0,0,0
 		screen.clear()
-		screen.draw_color = 255,0,255
 		x,y = pg.mouse.get_pos()
-		screen.fill_quad((x,y),(10,10),(y,400-x),(390,390))
 		screen.draw_color = 0,255,255
-		screen.draw_rect((x,y,100,100))
-		screen.fill_rect((x+1,y+2,30,10))
-
-		self.ang += self.dt/100
-		ng.screen.draw_color = 255,255,255
-		
-		ng.screen.fill_ngon((352,352),40+50*13,10000000000,(self.ang))
-		#for i in range(30,0,-1):
-		#	ng.screen.draw_color = [[max,min][i%2](c1,c2)for c1,c2 in zip(self.C[i],self.color)]
-		#	ng.screen.fill_ngon((352,352),40+i*13,59,(self.ang/i))
+		screen.draw_rect((x,y,3,3))
 
 ng.Game.start("TestScene")

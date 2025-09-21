@@ -25,7 +25,7 @@ GenericGame.__backend__ = "glng"
 
 
 from . import (windowArgs,GenericScene,add_scene,CLOCK,deprecated_alias) # noqa: F401
-from typing import Any, Union
+from typing import Any
 import pygame as pg
 import moderngl
 import numpy as np
@@ -69,10 +69,18 @@ class ScreenLike():
 	def draw_point(self,point): self._draw_shape((point,), moderngl.POINTS)
 	def draw_rect(self,rect):
 		x,y,w,h = rect
-		self._draw_shape(((x,y),(x+w,y),(x+w,y+h),(x,y+h)), moderngl.LINE_LOOP)
+		if w==h==1: return self.draw_point((x,y))
+		if w==1: return self.draw_line((x,y),(x,y+h))
+		if h==1: return self.draw_line((x,y),(x+w,y))
+		p = (x,y),(x+w-1,y),(x+w-1,y+h-1),(x,y+h)
+		self._draw_shape(p, moderngl.LINE_LOOP)
 	def fill_rect(self,rect):
 		x,y,w,h = rect
-		a,c = (x,y),(x+w,y+h)
+		a = (x,y)
+		if w==h==1: return self.draw_point(a)
+		if w==1: return self.draw_line(a,(x,y+h))
+		if h==1: return self.draw_line(a,(x+w,y))
+		c = (x+w,y+h)
 		self._draw_shape((a,(x+w,y),c,c,(x,y+h),a), moderngl.TRIANGLES)
 	def draw_triangle(self,p1,p2,p3): self._draw_shape((p1,p2,p3), moderngl.LINE_LOOP)
 	def fill_triangle(self,p1,p2,p3): self._draw_shape((p1,p2,p3), moderngl.TRIANGLES)

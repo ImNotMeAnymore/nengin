@@ -16,7 +16,7 @@
 # License along with this library; if not, see
 # <https://www.gnu.org/licenses/>.
 
-__version__ = "0.4.16b"
+__version__ = "0.4.17b"
 # 1.0.0 when I have some docs
 
 class GenericNenginError(Exception):
