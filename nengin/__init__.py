@@ -27,7 +27,6 @@ if __name__ == "__main__":
 
 import pygame
 #print("nengin", __version__)
-from pygame.key import ScancodeWrapper
 from pygame import Vector2 as _vector
 from typing import Callable, Type, Any, Union
 from abc import abstractmethod
@@ -196,10 +195,10 @@ class GenericScene:
 	def eventHandler(self, e:pygame.event.Event) -> None:
 		"""Runs once for every single event every tick, so don't do expensive stuff here
 		You should't use it for anything other than checking events really"""
-	def __globalKeyHandler__(self, ks:ScancodeWrapper) -> None:
+	def __globalKeyHandler__(self, ks:pygame.key.ScancodeWrapper) -> None:
 		if ks[pygame.K_ESCAPE]: return self.close()
 		return self.keyHandler(ks)
-	def keyHandler(self, ks:ScancodeWrapper) -> None:
+	def keyHandler(self, ks:pygame.key.ScancodeWrapper) -> None:
 		"""runs every tick, ks is an array of currently pressed keys"""
 	def onKey(self, k:int) -> None: """runs once, when key k is pressed"""
 	def onMouseUp(self, k:int, pos:tuple[int,int]) -> None: """runs once, when button k is released"""
