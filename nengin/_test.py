@@ -12,7 +12,6 @@ import nengin.glng as ng
 from nengin.glng import screen
 #import nengin.ng as ng
 
-import numpy as np
 import pygame as pg
 
 
@@ -24,7 +23,7 @@ A().test()
 
 class TestParentScene(ng.Scene):
 	# This is scene id:1, but no object is ever created so it's
-	# not registered and Scene.by_id doesn't know about this
+	# not registered and Scene.id_of doesn't know about this
 	color = [255,0,0]
 	def onKey(self, k):
 		if k == pg.K_SPACE: self.color.append(self.color.pop(0))

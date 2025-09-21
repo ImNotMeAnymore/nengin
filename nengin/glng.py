@@ -69,6 +69,7 @@ class ScreenLike():
 	def draw_point(self,point): self._draw_shape((point,), moderngl.POINTS)
 	def draw_rect(self,rect):
 		x,y,w,h = rect
+		x+=1
 		if w==h==1: return self.draw_point((x,y))
 		if w==1: return self.draw_line((x,y),(x,y+h))
 		if h==1: return self.draw_line((x,y),(x+w,y))
@@ -76,6 +77,7 @@ class ScreenLike():
 		self._draw_shape(p, moderngl.LINE_LOOP)
 	def fill_rect(self,rect):
 		x,y,w,h = rect
+		x+=1
 		a = (x,y)
 		if w==h==1: return self.draw_point(a)
 		if w==1: return self.draw_line(a,(x,y+h))
