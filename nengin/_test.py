@@ -1,19 +1,29 @@
-#!/usr/bin/env python3.13 -B -Wd -m cProfile -s cumulative
-# -B to avoid spamming garbage files
+#!/usr/bin/env python3.13 -B -Wd
+# -m cProfile -s cumulative
+# -B to avoid spamming garbage files, the rest is for profiling
+
+
 import sys
 import os
 
 from numpy.random.mtrand import randint
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+print(sys.path)
+
 #shenanigans to run the script from the IDE
 
 from nengin import deprecated_alias
+
 import nengin.glng as ng
-from nengin.glng import screen
 #import nengin.ng as ng
 
 import pygame as pg
 
+
+import numpy as np
+
+screen = ng.screen
 
 class A:
 	@deprecated_alias("wow")
@@ -28,8 +38,10 @@ class TestParentScene(ng.Scene):
 	def onKey(self, k):
 		if k == pg.K_SPACE: self.color.append(self.color.pop(0))
 
+
+
 pg.mouse.set_visible(False)
-@ng.add_scene("TestScene",75,"Made with Nengin!", windowSize=(400,600))
+@ng.add_scene("TestScene",75,"Made with Nengin!", windowSize=(64,64))
 class NewScreenScene(TestParentScene, debug=True):
 	C = {t:[randint(0,255)for i in "RGB"]for t in range(1,30+1)}
 	ang = 0
@@ -38,6 +50,9 @@ class NewScreenScene(TestParentScene, debug=True):
 		screen.clear()
 		x,y = pg.mouse.get_pos()
 		screen.draw_color = 0,255,255
-		screen.draw_rect((x,y,3,3))
+		screen.draw_rect((10,10,10,1))
+		s = ng.window.get_surface()
+		print(s.get_buffer().raw)
+		self.close()
 
 ng.Game.start("TestScene")
