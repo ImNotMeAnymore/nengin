@@ -55,7 +55,6 @@ void main() {
 	gl_Position = vec4(ndc, 0.0, 1.0);
 }
 """
-
 class ScreenLike():
 	"""implements **some** SDL2 screen(Renderer) methods in openGL, for compat purposes"""
 	_draw_color = pg.Color(0)
@@ -65,10 +64,16 @@ class ScreenLike():
 	def draw_color(self,value): self._draw_color = pg.Color(value)
 	def clear(self): context.clear(*self._draw_color.normalized)
 	def present(self): window.flip()
-	def draw_line(self,p1,p2): self._draw_shape((p1,p2), moderngl.LINES)
+	def draw_line(self,p1,p2):
+		x0,y0 = p1
+		x1,y1 = p2
+		if (x0,y0)==(x1,y1):return self.draw_point(p1)
+		self._draw_shape(((x0,y0),(x1+np.sign(x1-x0),y1+np.sign(y1-y0))), moderngl.LINES,0.5)
+
 	def draw_point(self,point): self._draw_shape((point,), moderngl.POINTS)
 	def draw_rect(self,rect):
 		x,y,w,h = rect
+		x+=1
 		if w==h==1: return self.draw_point((x,y+1))
 		if w==1: return self.draw_line((x+1,y),(x+1,y+h))
 		if h==1: return self.draw_line((x,y+1),(x+w,y+1))
@@ -80,12 +85,12 @@ class ScreenLike():
 		if w==h==1: return self.draw_point(a)
 		if w==1: return self.draw_line(a,(x,y+h))
 		if h==1: return self.draw_line(a,(x+w,y))
-		
 		c = (x+w,y+h)
 		self._draw_shape((a,(x+w,y),c,c,(x,y+h),a), moderngl.TRIANGLES)
-	def draw_triangle(self,p1,p2,p3): self._draw_shape((p1,p2,p3), moderngl.LINE_LOOP)
+	def draw_triangle(self,p1,p2,p3):
+		self._draw_shape((p1,p2,p3), moderngl.LINE_LOOP,0.5001237)
 	def fill_triangle(self,p1,p2,p3): self._draw_shape((p1,p2,p3), moderngl.TRIANGLES)
-	def draw_quad(self,p1,p2,p3,p4): self._draw_shape((p1,p2,p3,p4), moderngl.LINE_LOOP)
+	def draw_quad(self,p1,p2,p3,p4): self._draw_shape((p1,p2,p3,p4), moderngl.LINE_LOOP,0.5)
 	def fill_quad(self,p1,p2,p3,p4): self._draw_shape((p1,p2,p3,p3,p4,p1), moderngl.TRIANGLES)
 	verts = 4
 	program = context.program(vertex_shader=pixel_vertex_shader,fragment_shader=generic_fragment_shader)
@@ -106,10 +111,11 @@ class ScreenLike():
 		self.vao = context.simple_vertex_array(self.program, v, 'in_pos')
 		self.verts = n
 
-	def _draw_shape(self, points, mode):
+	def _draw_shape(self, points, mode, off:float=0):
 		self.program['color'].value = self._draw_color.normalized	#type: ignore
 		self.program['window_size'].value = window.size #type: ignore
-		self.vbo.write(np.asarray(points, dtype='f4').tobytes())
+		nt = np.asarray(points, dtype='f4')
+		self.vbo.write((nt+off).tobytes())
 		self.vao.render(mode=mode, vertices=len(points))
 	def _prepngon(self, xy, size, n, angle):
 		if n >= 100: n = 100 #TODO func for maximum
@@ -118,6 +124,10 @@ class ScreenLike():
 		a = np.linspace(0,2*np.pi,n,endpoint=False)+angle
 		return np.stack((x+size*np.cos(a),y+size*np.sin(a)),axis=-1)
 
+	def to_surface(self):
+		w,h = window.size
+		px = context.screen.read(components=4,alignment=1,viewport=(0,0,w,h))
+		return pg.transform.flip(pg.image.frombuffer(px,(w,h),"RGBA"),False,True)
 
 screen = ScreenLike()
 
