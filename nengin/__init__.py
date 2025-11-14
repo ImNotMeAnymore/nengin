@@ -276,7 +276,7 @@ class GenericGame:
 
 	def finisher(self):
 		"""this function gets executed at the very end of Game, after all scenes have been dealt with"""
-		#pygame.quit()
+		pygame.quit()
 
 	def game_ticker(self):
 		"""A single game tick, this gets called on loop forever by default
