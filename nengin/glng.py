@@ -60,7 +60,7 @@ class ScreenLike():
 	_draw_color = pg.Color(0)
 	_draw_color_normalized = (0.0, 0.0, 0.0, 1.0)
 	# Cache for ngon angle arrays to avoid recomputing linspace and trig functions
-	_ngon_cache: dict[int, "np.ndarray"] = {}
+	_ngon_cache: dict[int, np.ndarray] = {}
 	@property
 	def draw_color(self): return self._draw_color
 	@draw_color.setter
@@ -123,10 +123,11 @@ class ScreenLike():
 		# Use cached normalized color instead of computing it every draw call
 		self.program['color'].value = self._draw_color_normalized	#type: ignore
 		self.program['window_size'].value = window.size #type: ignore
-		# Convert to numpy array more efficiently - avoid intermediate array creation when off is 0
-		nt = np.asarray(points, dtype='f4')
+		# Convert to numpy array - when offset is needed, add it in a single operation
 		if off != 0:
-			nt = nt + off
+			nt = np.asarray(points, dtype='f4') + off
+		else:
+			nt = np.asarray(points, dtype='f4')
 		self.vbo.write(nt.tobytes())
 		self.vao.render(mode=mode, vertices=len(points))
 	def _prepngon(self, xy, size, n, angle):
