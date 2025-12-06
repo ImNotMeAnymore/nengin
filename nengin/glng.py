@@ -58,11 +58,17 @@ void main() {
 class ScreenLike():
 	"""implements **some** SDL2 screen(Renderer) methods in openGL, for compat purposes"""
 	_draw_color = pg.Color(0)
+	_draw_color_normalized = (0.0, 0.0, 0.0, 1.0)
+	# Cache for ngon angle arrays to avoid recomputing linspace and trig functions
+	_ngon_cache: dict[int, "np.ndarray"] = {}
 	@property
 	def draw_color(self): return self._draw_color
 	@draw_color.setter
-	def draw_color(self,value): self._draw_color = pg.Color(value)
-	def clear(self): context.clear(*self._draw_color.normalized)
+	def draw_color(self,value):
+		self._draw_color = pg.Color(value)
+		# Cache normalized color to avoid recomputing it on every draw call
+		self._draw_color_normalized = self._draw_color.normalized
+	def clear(self): context.clear(*self._draw_color_normalized)
 	def present(self): window.flip()
 	def draw_line(self,p1,p2):
 		x0,y0 = p1
@@ -106,22 +112,31 @@ class ScreenLike():
 		self._draw_shape(np.vstack([xy,sh,sh[0]]), moderngl.TRIANGLE_FAN)
 
 	def reserve(self, n:int):
-		self.vbo.release()
-		self.vbo = v = context.buffer(reserve=n*16)
-		self.vao = context.simple_vertex_array(self.program, v, 'in_pos')
-		self.verts = n
+		# Only reallocate if we need more space to avoid unnecessary buffer operations
+		if n > self.verts:
+			self.vbo.release()
+			self.vbo = v = context.buffer(reserve=n*16)
+			self.vao = context.simple_vertex_array(self.program, v, 'in_pos')
+			self.verts = n
 
 	def _draw_shape(self, points, mode, off:float=0):
-		self.program['color'].value = self._draw_color.normalized	#type: ignore
+		# Use cached normalized color instead of computing it every draw call
+		self.program['color'].value = self._draw_color_normalized	#type: ignore
 		self.program['window_size'].value = window.size #type: ignore
+		# Convert to numpy array more efficiently - avoid intermediate array creation when off is 0
 		nt = np.asarray(points, dtype='f4')
-		self.vbo.write((nt+off).tobytes())
+		if off != 0:
+			nt = nt + off
+		self.vbo.write(nt.tobytes())
 		self.vao.render(mode=mode, vertices=len(points))
 	def _prepngon(self, xy, size, n, angle):
 		if n >= 100: n = 100 #TODO func for maximum
 		if n > self.verts: self.reserve(n)
 		x,y = xy
-		a = np.linspace(0,2*np.pi,n,endpoint=False)+angle
+		# Cache the base angle array for common ngon counts
+		if n not in self._ngon_cache:
+			self._ngon_cache[n] = np.linspace(0, 2*np.pi, n, endpoint=False)
+		a = self._ngon_cache[n] + angle
 		return np.stack((x+size*np.cos(a),y+size*np.sin(a)),axis=-1)
 
 	def to_surface(self):
