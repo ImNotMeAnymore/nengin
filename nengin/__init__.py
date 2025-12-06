@@ -175,7 +175,10 @@ class GenericScene:
 		self.withMetadata(meta or {})
 		window.title = self.windowName
 		if self.windowIcon: window.set_icon(self.windowIcon)
-		if (self.windowSize.xyi != window.size): window.size = self.windowSize.xyi
+		# Cache xyi to avoid computing it twice
+		window_size_xyi = self.windowSize.xyi
+		if window_size_xyi != window.size:
+			window.size = window_size_xyi
 		window.position = Vector(self.windowPos)
 		if not self.__started__:
 			self.__started__ = True
@@ -266,7 +269,8 @@ class GenericGame:
 
 	__change_stack__:dict[str,dict[Any,Any]] = {}
 	def change_scene(self, to:str, metadata:dict[Any,Any]|None=None) -> None:
-		if to in self.__change_stack__: del self.__change_stack__[to]
+		# Use pop() with default instead of check-then-delete for better performance
+		self.__change_stack__.pop(to, None)
 		self.__change_stack__[str(to)] = metadata or {}
 	changeSceneTo = change_scene
 
@@ -296,8 +300,10 @@ class GenericGame:
 			self.scene = new
 		self.dt = CLOCK.tick(self.scene.framerate)
 		events = pygame.event.get()
+		# Cache window reference for faster access in tight loop
+		window = self.window
 		for e in events:
-			if e.__dict__.get("window") not in (self.window,None):
+			if e.__dict__.get("window") not in (window,None):
 				raise GenericNenginError("Multiple windows are not supported!")
 			self.scene.__globalEventHandler__(e)
 		self.scene.__globalKeyHandler__(pygame.key.get_pressed())
