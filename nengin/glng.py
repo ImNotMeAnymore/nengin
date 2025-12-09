@@ -57,12 +57,13 @@ void main() {
 """
 class ScreenLike():
 	"""implements **some** SDL2 screen(Renderer) methods in openGL, for compat purposes"""
-	_draw_color = pg.Color(0)
+	_draw_color = (0.,0.,0.,1.)
 	@property
 	def draw_color(self): return self._draw_color
 	@draw_color.setter
-	def draw_color(self,value): self._draw_color = pg.Color(value)
-	def clear(self): context.clear(*self._draw_color.normalized)
+	def draw_color(self,value):
+		self._draw_color:tuple[float,float,float,float] = pg.Color(value).normalized
+	def clear(self): context.clear(*self._draw_color)
 	def present(self): window.flip()
 	def draw_line(self,p1,p2):
 		x0,y0 = p1
@@ -96,7 +97,10 @@ class ScreenLike():
 	program = context.program(vertex_shader=pixel_vertex_shader,fragment_shader=generic_fragment_shader)
 	vbo = context.buffer(reserve=verts*16)
 	vao = context.simple_vertex_array(program, vbo, 'in_pos')
-
+	
+	
+	#here it copilot said something about caching it, but angles would make it explode in size
+	#perhaps round the angles a bit before drawing and cache that
 	def draw_ngon(self,xy,size,n=3,angle=0.0):
 		if n<=2: return
 		self._draw_shape(self._prepngon(xy,size,n,angle), moderngl.LINE_LOOP)
@@ -112,10 +116,10 @@ class ScreenLike():
 		self.verts = n
 
 	def _draw_shape(self, points, mode, off:float=0):
-		self.program['color'].value = self._draw_color.normalized	#type: ignore
+		self.program['color'].value = self._draw_color	#type: ignore
 		self.program['window_size'].value = window.size #type: ignore
 		nt = np.asarray(points, dtype='f4')
-		self.vbo.write((nt+off).tobytes())
+		self.vbo.write((nt+off if off else nt).tobytes())
 		self.vao.render(mode=mode, vertices=len(points))
 	def _prepngon(self, xy, size, n, angle):
 		if n >= 100: n = 100 #TODO func for maximum

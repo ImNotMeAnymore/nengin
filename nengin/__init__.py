@@ -93,7 +93,7 @@ windowArgs:dict["str",Any] = { #there's probably a better way of doing this
 	"utility":False,			# (bool) Create a window that doesn't appear in the task bar
 } #Maaaybe a vulkan backend too?
 
-NumberPair = Union[float,list[float],tuple[float,float],"np.ndarray",Vector] #noqa:F821#type:ignore
+NumberPair = Union[float,list[float],tuple[float,float],"numpy.ndarray",Vector] #noqa:F821#type:ignore
 
 class GenericScene:
 	__byID__:dict[int,"GenericScene"] = {}
@@ -175,7 +175,8 @@ class GenericScene:
 		self.withMetadata(meta or {})
 		window.title = self.windowName
 		if self.windowIcon: window.set_icon(self.windowIcon)
-		if (self.windowSize.xyi != window.size): window.size = self.windowSize.xyi
+		szxy = self.windowSize
+		if (szxy != window.size): window.size = szxy
 		window.position = Vector(self.windowPos)
 		if not self.__started__:
 			self.__started__ = True
@@ -266,7 +267,7 @@ class GenericGame:
 
 	__change_stack__:dict[str,dict[Any,Any]] = {}
 	def change_scene(self, to:str, metadata:dict[Any,Any]|None=None) -> None:
-		if to in self.__change_stack__: del self.__change_stack__[to]
+		#if to in self.__change_stack__: del self.__change_stack__[to]
 		self.__change_stack__[str(to)] = metadata or {}
 	changeSceneTo = change_scene
 
@@ -296,8 +297,9 @@ class GenericGame:
 			self.scene = new
 		self.dt = CLOCK.tick(self.scene.framerate)
 		events = pygame.event.get()
+		check = (self.window, None)
 		for e in events:
-			if e.__dict__.get("window") not in (self.window,None):
+			if e.__dict__.get("window") not in check:
 				raise GenericNenginError("Multiple windows are not supported!")
 			self.scene.__globalEventHandler__(e)
 		self.scene.__globalKeyHandler__(pygame.key.get_pressed())
