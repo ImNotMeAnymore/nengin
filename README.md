@@ -30,8 +30,8 @@ pip install git+https://github.com/ImNotMeAnymore/nengin
 ### Install for OpenGL backend (glng)
 
 ```bash
-pip install git+https://github.com/ImNotMeAnymore/nengin
 pip install moderngl numpy
+pip install git+https://github.com/ImNotMeAnymore/nengin
 ```
 
 ---
