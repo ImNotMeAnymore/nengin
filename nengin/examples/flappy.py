@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.13 -B -Wd
+#!/usr/bin/env python3.14 -B -Wd
 import nengin.ng as ng
 from nengin.ng import screen, Scene, add_scene
 from pygame import FRect as Rect, K_SPACE, Vector2 as Vector
@@ -21,7 +21,6 @@ class FlappyGameOver(Scene):
 		self.pos = Vector(X//5,Y//3)
 		self.rect = Rect(0,0,30,30)
 		self.rect.center = self.pos
-	
 
 @add_scene("flappy-game", windowSize=SIZE)
 class FlappyGame(Scene):

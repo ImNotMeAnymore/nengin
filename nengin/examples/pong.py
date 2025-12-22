@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.13 -B -Wd
+#!/usr/bin/env python3.14 -B -Wd
 from pygame.key import ScancodeWrapper
 import nengin.ng as ng
 from nengin.ng import Scene, screen, add_scene

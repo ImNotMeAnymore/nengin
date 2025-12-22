@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.13
+#!/usr/bin/env python3.14
 # Nengin, a small pygame-ce wrapper
 # Copyright (C) 2025  notmeanymore
 

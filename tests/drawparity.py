@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.13 -B -Wd
+#!/usr/bin/env python3.14 -B -Wd
 # -m cProfile -s cumulative
 # -B to avoid spamming garbage files, the rest is for profiling
 
