@@ -9,6 +9,8 @@ from random import choice, randint
 
 X,Y = SIZE = Vector(8,5)*120
 VIEW = Rect(0,0,X,Y)
+SP = 6
+
 
 def almost(n:int|float,w:int|float,e:int|float=5) -> bool: return n-e < w < n+e
 
@@ -68,12 +70,15 @@ class PongGame(Scene):
 		screen.draw_color = 200,10,200
 		screen.fill_rect(r)
 		if bl.colliderect(r):
-			dr.x *= -1
+			nx,ny = Vector(dr.length(),0).rotate(randint(0,60))
+			dr.x = nx*(1 if dr.x<0 else -1)
+			dr.y = ny*(-1 if dr.y<0 else 1)
 			self.pongs += 1
 			if self.pongs > 4:
 				n = 1+randint(-30,50)/1000
 				dr.xy *= n
 				if randint(0,16): sd.xy *= n
+		
 		
 		if bl.left <= 0: return self.changeScene("pong-end",{"win":False})
 		if bl.right >= X: return self.changeScene("pong-end",{"win":True})
@@ -81,11 +86,11 @@ class PongGame(Scene):
 		if bl.top <= 0 or bl.bottom >= Y: dr.y *= -1
 		if sh.top <= 0 or sh.bottom >= Y:
 			sd.y *= -1
-			if no.bottom >= Y-90 or no.top <= 90: sh.center = bl.center		
+			if no.bottom >= Y-90 or no.top <= 90: sh.center = bl.center
 	def think(self):
 		if self.dr.x < 0: return
-		if almost(self.sh.centery, self.no.centery, 20): return
-		t = 4 if self.sh.centery > self.no.centery else -4
+		if almost(self.sh.centery, self.no.centery, 6): return
+		t = SP if self.sh.centery > self.no.centery else -SP
 		self.no.centery = max(min(self.no.centery+t,Y-50),50)
 	def onDraw(self):
 		screen.draw_color = 20,20,20
@@ -95,8 +100,8 @@ class PongGame(Scene):
 		screen.fill_rect(self.me)
 		screen.fill_rect(self.no)
 		self.bl.center += self.dr
-		if self.frame_counter%60:
-			if randint(0,32): self.sh.center += self.sd
+		if self.frame_counter%560:
+			if randint(0,1): self.sh.center += self.sd
 			else: self.sh.center = self.bl.center
 		self.check()
 		screen.draw_color = 255,255,255
@@ -105,7 +110,7 @@ class PongGame(Scene):
 	def keyHandler(self, ks: ScancodeWrapper) -> None:
 		u,d = ks[K_UP]or ks[K_w],ks[K_DOWN]or ks[K_s]
 		if u and d: return
-		if u and self.me.top > 0: self.me.top -= 4
-		if d and self.me.bottom < Y: self.me.bottom += 4
+		if u and self.me.top > 0: self.me.top -= SP
+		if d and self.me.bottom < Y: self.me.bottom += SP
 
 if __name__ == "__main__": ng.Game.start("pong")
