@@ -64,11 +64,7 @@ class FlappyGameOver(Scene):
 
 NEX = []
 
-
-
-
-
-@add_scene("flappy-game", windowSize=SIZE)
+@add_scene("flappy-game", windowSize=SIZE, framerate=144)
 class FlappyGame(Scene):
 	def onStart(self, prev: int) -> None:
 		self.momentum = Vector(0,-10)
@@ -76,15 +72,14 @@ class FlappyGame(Scene):
 		self.rect = Rect(0,0,30,30)
 		self.pos.y = self.metadata["y"]
 	def onTick(self) -> None:
-		self.momentum.y += 0.5
-		self.pos += self.momentum
+		self.momentum.y += 0.5*self.dt/16
+		self.pos += self.momentum*self.dt/16
 		self.rect.center = self.pos
 		if self.rect.bottom >= Y-30: self.changeScene("flappy-over")
 	def onKey(self, k: int) -> None:
 		#19*18/4 (85.5) would not allow it to go outside the screen, but 20 will do
 		if k == K_SPACE and self.rect.top > 20:
 			self.momentum.y = -10
-
 	def onDraw(self) -> None:
 		super().onDraw()
 		screen.draw_color = 0,255,0
