@@ -215,7 +215,7 @@ class GenericScene:
 
 def add_scene(
 	name:str, #required
-	framerate:int=60,
+	framerate:int=144,
 	windowName:str="Made with Nengin!",
 	windowSize:NumberPair=704, #anything pygame.Vector2() accepts will do
 	windowPos:NumberPair=pygame.WINDOWPOS_UNDEFINED, #same as above
