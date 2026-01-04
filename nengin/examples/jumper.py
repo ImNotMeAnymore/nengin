@@ -82,11 +82,11 @@ class JumpGame(Scene):
 		Ypos = VIEW.centerx
 		if 0 < self.t:
 			self.player.centery = y = Ypos-13*self.t+.3*self.t**2
-			self.t += self.dt/10
+			self.t += self.dt/15
 			if y > Ypos:
 				self.t = 0
 				self.player.centery = Ypos
-		self.pos += (8+self.pos/9999)*self.dt/10
+		self.pos += (8+self.pos/9999)*self.dt/15
 		screen.draw_color = 255,255,20
 		screen.fill_rect(self.player)
 		screen.draw_color = 235,235,235
