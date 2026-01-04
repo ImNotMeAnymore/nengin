@@ -47,7 +47,7 @@ class GameOver(Scene):
 	def onKey(self, k:int):
 		if k == K_r: self.changeScene("pong")
 
-@add_scene("pong", windowSize=SIZE)
+@add_scene("pong", windowSize=SIZE, framerate=144)
 class PongGame(Scene):
 	def onStart(self, prev:int):
 		self.dr = d = Vector(5,0).rotate(randint(20,33)*choice((-1,1)))
@@ -83,15 +83,17 @@ class PongGame(Scene):
 		if bl.left <= 0: return self.changeScene("pong-end",{"win":False})
 		if bl.right >= X: return self.changeScene("pong-end",{"win":True})
 
-		if bl.top <= 0 or bl.bottom >= Y: dr.y *= -1
+		if bl.top <= 0 or bl.bottom >= Y:dr.y *= -1
 		if sh.top <= 0 or sh.bottom >= Y:
 			sd.y *= -1
 			if no.bottom >= Y-90 or no.top <= 90: sh.center = bl.center
+		bl.top,bl.bottom=max(0,bl.top),min(Y,bl.bottom)
+		sh.top,sh.bottom=max(0,sh.top),min(Y,sh.bottom)
 	def think(self):
 		if self.dr.x < 0: return
 		if almost(self.sh.centery, self.no.centery, 6): return
 		t = SP if self.sh.centery > self.no.centery else -SP
-		self.no.centery = max(min(self.no.centery+t,Y-50),50)
+		self.no.centery = max(min(self.no.centery+t*self.dt/10,Y-50),50)
 	def onDraw(self):
 		screen.draw_color = 20,20,20
 		screen.clear()
@@ -99,9 +101,9 @@ class PongGame(Scene):
 		screen.draw_color = 255,255,25
 		screen.fill_rect(self.me)
 		screen.fill_rect(self.no)
-		self.bl.center += self.dr
+		self.bl.center += self.dr*self.dt/10
 		if self.frame_counter%560:
-			if randint(0,1): self.sh.center += self.sd
+			if randint(0,1): self.sh.center += self.sd*self.dt/10
 			else: self.sh.center = self.bl.center
 		self.check()
 		screen.draw_color = 255,255,255
@@ -110,7 +112,7 @@ class PongGame(Scene):
 	def keyHandler(self, ks: ScancodeWrapper) -> None:
 		u,d = ks[K_UP]or ks[K_w],ks[K_DOWN]or ks[K_s]
 		if u and d: return
-		if u and self.me.top > 0: self.me.top -= SP
-		if d and self.me.bottom < Y: self.me.bottom += SP
+		if u and self.me.top > 0: self.me.top -= SP*self.dt/10
+		if d and self.me.bottom < Y: self.me.bottom += SP*self.dt/10
 
 if __name__ == "__main__": ng.Game.start("pong")
